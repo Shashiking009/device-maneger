@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator Hub - 100+ Free Online Calculators for Students, Finance, Health & Devs</title>
+  <meta name="description" content="Free online calculator platform containing 100+ accurate calculators for GPA, BMI, Loan EMI, Scientific Math, Developer Tools, and daily utilities.">
+  <meta name="keywords" content="calculators, online calculator, BMI calculator, GPA calculator, EMI calculator, SIP calculator, percentage calculator, scientific calculator">
+  
+  <!-- Open Graph / Social SEO -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Calculator Hub - 100+ Free Online Calculators">
+  <meta property="og:description" content="Calculate instantly with 100+ free online calculators for education, health, finance, and developers.">
+  <meta property="og:url" content="https://calculator-hub.com/">
+
+  <!-- Canonical Link -->
+  <link rel="canonical" href="https://calculator-hub.com/">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Header & Navigation -->
+  <header class="header">
+    <div class="container header-inner">
+      <a href="/index.html" class="logo">
+        <div class="logo-icon">Σ</div>
+        <div class="logo-text">Calculator<span>Hub</span></div>
+      </a>
+
+      <nav>
+        <ul class="nav-menu" id="nav-menu">
+          <li><a href="/index.html" class="nav-link active">Home</a></li>
+          <li><a href="/calculators/education.html" class="nav-link">Education</a></li>
+          <li><a href="/calculators/health.html" class="nav-link">Health</a></li>
+          <li><a href="/calculators/finance.html" class="nav-link">Finance</a></li>
+          <li><a href="/calculators/developer.html" class="nav-link">Developer Tools</a></li>
+          <li><a href="/pages/about.html" class="nav-link">About</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">🌙</button>
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Open menu">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <h1 class="hero-title">Free Online Calculators For Everyday Problems</h1>
+      <p class="hero-subtitle">Calculate instantly with accurate, easy-to-use calculators for students, fitness, finance, and developers.</p>
+
+      <!-- Instant Search Bar -->
+      <div class="search-container">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" placeholder="Search 100+ calculators (e.g. 'Search BMI calculator', 'GPA', 'EMI')..." aria-label="Search calculators">
+        </div>
+        <div class="search-results-dropdown"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Top AdSense Banner Placeholder -->
+  <div class="container">
+    <div class="adsense-container adsense-banner">
+      <div class="adsense-label">Advertisement</div>
+      <div class="adsense-placeholder">Google AdSense Responsive Banner Slot (728x90 / Auto)</div>
+    </div>
+  </div>
+
+  <main class="container" style="margin-bottom: 4rem;">
+    
+    <!-- Category Cards Section -->
+    <section style="margin-bottom: 3.5rem;">
+      <h2 class="section-title">Explore Calculator Categories</h2>
+      <p class="section-subtitle">Select a category to find specialized tools designed for your exact needs.</p>
+
+      <div class="category-grid">
+        
+        <!-- Category 1: Education -->
+        <div class="category-card">
+          <div class="category-card-icon">🎓</div>
+          <h3 class="category-card-title">Education Calculators</h3>
+          <div class="category-card-count">15 Useful Tools</div>
+          <p class="category-card-desc">Calculate CGPA, GPA, percentage, attendance targets, rank predictions, and study plans.</p>
+          <a href="/calculators/education.html" class="category-card-link">Explore Education Tools →</a>
+        </div>
+
+        <!-- Category 2: Health -->
+        <div class="category-card">
+          <div class="category-card-icon">❤️</div>
+          <h3 class="category-card-title">Health & Fitness</h3>
+          <div class="category-card-count">15 Useful Tools</div>
+          <p class="category-card-desc">Calculate Body Mass Index (BMI), BMR, daily calorie burn, water intake, macros, and sleep cycles.</p>
+          <a href="/calculators/health.html" class="category-card-link">Explore Health Tools →</a>
+        </div>
+
+        <!-- Category 3: Finance -->
+        <div class="category-card">
+          <div class="category-card-icon">💰</div>
+          <h3 class="category-card-title">Finance & Money</h3>
+          <div class="category-card-count">20 Useful Tools</div>
+          <p class="category-card-desc">Calculate EMI payments, SIP returns, loan interest, compound growth, GST, and income taxes.</p>
+          <a href="/calculators/finance.html" class="category-card-link">Explore Finance Tools →</a>
+        </div>
+
+        <!-- Category 4: Developer Tools -->
+        <div class="category-card">
+          <div class="category-card-icon">💻</div>
+          <h3 class="category-card-title">Developer Tools</h3>
+          <div class="category-card-count">10 Useful Tools</div>
+          <p class="category-card-desc">Generate secure passwords, QR codes, format JSON strings, encode URLs, and convert binary/hex bases.</p>
+          <a href="/calculators/developer.html" class="category-card-link">Explore Developer Tools →</a>
+        </div>
+
+        <!-- Category 5: Math -->
+        <div class="category-card">
+          <div class="category-card-icon">📐</div>
+          <h3 class="category-card-title">Math Calculators</h3>
+          <div class="category-card-count">10 Useful Tools</div>
+          <p class="category-card-desc">Scientific calculator, fractions, LCM/HCF, prime numbers, surface area, and 3D volume formulas.</p>
+          <a href="/calculators/math.html" class="category-card-link">Explore Math Tools →</a>
+        </div>
+
+        <!-- Category 6: Daily Utility Tools -->
+        <div class="category-card">
+          <div class="category-card-icon">⚡</div>
+          <h3 class="category-card-title">Daily Utility Tools</h3>
+          <div class="category-card-count">10 Useful Tools</div>
+          <p class="category-card-desc">Time calculations, age gap, universal unit converters, electricity bills, and trip fuel expenses.</p>
+          <a href="/calculators/daily-tools.html" class="category-card-link">Explore Utility Tools →</a>
+        </div>
+
+        <!-- Category 7: Fitness Advanced -->
+        <div class="category-card">
+          <div class="category-card-icon">🏋️</div>
+          <h3 class="category-card-title">Fitness Advanced</h3>
+          <div class="category-card-count">10 Useful Tools</div>
+          <p class="category-card-desc">Calculate 1 Rep Max (1RM), pushup calories, workout volume, step distance, and water weight.</p>
+          <a href="/calculators/fitness-advanced.html" class="category-card-link">Explore Advanced Fitness →</a>
+        </div>
+
+        <!-- Category 8: Extra SEO Tools -->
+        <div class="category-card">
+          <div class="category-card-icon">🔤</div>
+          <h3 class="category-card-title">Extra Text & SEO Tools</h3>
+          <div class="category-card-count">10 Useful Tools</div>
+          <p class="category-card-desc">CGPA to percentage, word counter, password strength tester, work hours, and text case converters.</p>
+          <a href="/calculators/seo-tools.html" class="category-card-link">Explore SEO Tools →</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Popular & Featured Calculators Grid -->
+    <section>
+      <h2 class="section-title">Popular Calculators</h2>
+      <p class="section-subtitle">Most frequently used online tools by our global users today.</p>
+
+      <div class="calculator-grid">
+        
+        <a href="/calculator.html?id=bmi-calculator" class="calculator-item-card">
+          <div class="calculator-item-title">BMI Calculator</div>
+          <div class="calculator-item-desc">Calculate Body Mass Index and check your healthy weight status.</div>
+          <div class="calculator-item-footer">
+            <span class="calculator-tag">HEALTH</span>
+            <span style="font-size:0.85rem; font-weight:600; color:var(--accent-primary);">Calculate →</span>
+          </div>
+        </a>
+
+        <a href="/calculator.html?id=cgpa-calculator" class="calculator-item-card">
+          <div class="calculator-item-title">CGPA Calculator</div>
+          <div class="calculator-item-desc">Compute cumulative grade point average across academic semesters.</div>
+          <div class="calculator-item-footer">
+            <span class="calculator-tag">EDUCATION</span>
+            <span style="font-size:0.85rem; font-weight:600; color:var(--accent-primary);">Calculate →</span>
+          </div>
+        </a>
+
+        <a href="/calculator.html?id=emi-calculator" class="calculator-item-card">
+          <div class="calculator-item-title">EMI Calculator</div>
+          <div class="calculator-item-desc">Calculate monthly loan EMI and total interest for home or car loans.</div>
+          <div class="calculator-item-footer">
+            <span class="calculator-tag">FINANCE</span>
+            <span style="font-size:0.85rem; font-weight:600; color:var(--accent-primary);">Calculate →</span>
+          </div>
+        </a>
+
+        <a href="/calculator.html?id=sip-calculator" class="calculator-item-card">
+          <div class="calculator-item-title">SIP Calculator</div>
+          <div class="calculator-item-desc">Calculate future wealth gains from monthly mutual fund investments.</div>
+          <div class="calculator-item-footer">
+            <span class="calculator-tag">FINANCE</span>
+            <span style="font-size:0.85rem; font-weight:600; color:var(--accent-primary);">Calculate →</span>
+          </div>
+        </a>
+
+        <a href="/calculator.html?id=password-generator" class="calculator-item-card">
+          <div class="calculator-item-title">Password Generator</div>
+          <div class="calculator-item-desc">Generate strong, secure, random passwords with custom symbols.</div>
+          <div class="calculator-item-footer">
+            <span class="calculator-tag">DEVELOPER</span>
+            <span style="font-size:0.85rem; font-weight:600; color:var(--accent-primary);">Generate →</span>
+          </div>
+        </a>
+
+        <a href="/calculator.html?id=percentage-calculator" class="calculator-item-card">
+          <div class="calculator-item-title">Percentage Calculator</div>
+          <div class="calculator-item-desc">Calculate percentage of numbers, percentage change, and discounts.</div>
+          <div class="calculator-item-footer">
+            <span class="calculator-tag">EDUCATION</span>
+            <span style="font-size:0.85rem; font-weight:600; color:var(--accent-primary);">Calculate →</span>
+          </div>
+        </a>
+
+        <a href="/calculator.html?id=scientific-calculator" class="calculator-item-card">
+          <div class="calculator-item-title">Scientific Calculator</div>
+          <div class="calculator-item-desc">Solve advanced trigonometry, logarithms, powers, and roots online.</div>
+          <div class="calculator-item-footer">
+            <span class="calculator-tag">MATH</span>
+            <span style="font-size:0.85rem; font-weight:600; color:var(--accent-primary);">Calculate →</span>
+          </div>
+        </a>
+
+        <a href="/calculator.html?id=unit-converter" class="calculator-item-card">
+          <div class="calculator-item-title">Universal Unit Converter</div>
+          <div class="calculator-item-desc">Convert meters, feet, inches, miles, and metric distance units.</div>
+          <div class="calculator-item-footer">
+            <span class="calculator-tag">UTILITY</span>
+            <span style="font-size:0.85rem; font-weight:600; color:var(--accent-primary);">Convert →</span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom AdSense Slot -->
+  <div class="container">
+    <div class="adsense-container adsense-banner">
+      <div class="adsense-label">Advertisement</div>
+      <div class="adsense-placeholder">Google AdSense Mid-Content Banner</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="/index.html" class="logo">
+            <div class="logo-icon">Σ</div>
+            <div class="logo-text">Calculator<span>Hub</span></div>
+          </a>
+          <p class="footer-desc">Your ultimate platform for 100+ free online calculators. Built for students, health enthusiasts, finance planners, and software developers.</p>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Categories</h4>
+          <ul class="footer-links">
+            <li><a href="/calculators/education.html" class="footer-link">Education Calculators</a></li>
+            <li><a href="/calculators/health.html" class="footer-link">Health & Fitness</a></li>
+            <li><a href="/calculators/finance.html" class="footer-link">Finance Calculators</a></li>
+            <li><a href="/calculators/developer.html" class="footer-link">Developer Tools</a></li>
+            <li><a href="/calculators/math.html" class="footer-link">Math Calculators</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Top Tools</h4>
+          <ul class="footer-links">
+            <li><a href="/calculator.html?id=bmi-calculator" class="footer-link">BMI Calculator</a></li>
+            <li><a href="/calculator.html?id=cgpa-calculator" class="footer-link">CGPA Calculator</a></li>
+            <li><a href="/calculator.html?id=emi-calculator" class="footer-link">EMI Calculator</a></li>
+            <li><a href="/calculator.html?id=sip-calculator" class="footer-link">SIP Calculator</a></li>
+            <li><a href="/calculator.html?id=json-formatter" class="footer-link">JSON Formatter</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Company & Legal</h4>
+          <ul class="footer-links">
+            <li><a href="/pages/about.html" class="footer-link">About Us</a></li>
+            <li><a href="/pages/contact.html" class="footer-link">Contact Us</a></li>
+            <li><a href="/pages/privacy-policy.html" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/pages/terms.html" class="footer-link">Terms of Service</a></li>
+            <li><a href="/sitemap.xml" class="footer-link">Sitemap</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 Calculator Hub. All rights reserved. Fast, lightweight & AdSense ready.</div>
+        <div>Designed for performance & high search visibility.</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/assets/js/calculators-db.js"></script>
+  <script src="/assets/js/calculator-engine.js"></script>
+  <script src="/assets/js/app.js"></script>
+</body>
+</html>

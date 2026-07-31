@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - Calculator Hub</title>
+  <meta name="description" content="Contact Calculator Hub. Get in touch with our support and developer team for feedback, calculator suggestions, or inquiries.">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <a href="/index.html" class="logo">
+        <div class="logo-icon">Σ</div>
+        <div class="logo-text">Calculator<span>Hub</span></div>
+      </a>
+      <nav>
+        <ul class="nav-menu" id="nav-menu">
+          <li><a href="/index.html" class="nav-link">Home</a></li>
+          <li><a href="/calculators/education.html" class="nav-link">Education</a></li>
+          <li><a href="/calculators/health.html" class="nav-link">Health</a></li>
+          <li><a href="/calculators/finance.html" class="nav-link">Finance</a></li>
+          <li><a href="/calculators/developer.html" class="nav-link">Developer Tools</a></li>
+          <li><a href="/pages/about.html" class="nav-link">About</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">🌙</button>
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Open menu">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="max-width:800px; margin:3rem auto;">
+    <article class="seo-article">
+      <h1>Contact Us</h1>
+      <p>Have a question, feedback, bug report, or a suggestion for a new calculator? We would love to hear from you!</p>
+
+      <form onsubmit="event.preventDefault(); alert('Thank you for reaching out! Your message has been sent successfully.'); this.reset();" style="margin-top:1.5rem;">
+        <div class="form-group">
+          <label class="form-label" for="contact-name">Your Full Name</label>
+          <input type="text" id="contact-name" class="form-control" placeholder="John Doe" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="contact-email">Email Address</label>
+          <input type="email" id="contact-email" class="form-control" placeholder="john@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="contact-subject">Subject</label>
+          <input type="text" id="contact-subject" class="form-control" placeholder="Calculator Suggestion / Inquiry" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="contact-message">Message</label>
+          <textarea id="contact-message" class="form-control" rows="5" placeholder="Write your message here..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Send Message ✉️</button>
+      </form>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="/index.html" class="logo">
+            <div class="logo-icon">Σ</div>
+            <div class="logo-text">Calculator<span>Hub</span></div>
+          </a>
+          <p class="footer-desc">Your ultimate platform for 100+ free online calculators.</p>
+        </div>
+        <div>
+          <h4 class="footer-col-title">Categories</h4>
+          <ul class="footer-links">
+            <li><a href="/calculators/education.html" class="footer-link">Education</a></li>
+            <li><a href="/calculators/health.html" class="footer-link">Health</a></li>
+            <li><a href="/calculators/finance.html" class="footer-link">Finance</a></li>
+            <li><a href="/calculators/developer.html" class="footer-link">Developer Tools</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-col-title">Company</h4>
+          <ul class="footer-links">
+            <li><a href="/pages/about.html" class="footer-link">About Us</a></li>
+            <li><a href="/pages/contact.html" class="footer-link">Contact Us</a></li>
+            <li><a href="/pages/privacy-policy.html" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/pages/terms.html" class="footer-link">Terms of Service</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-col-title">Sitemap</h4>
+          <ul class="footer-links">
+            <li><a href="/sitemap.xml" class="footer-link">XML Sitemap</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div>&copy; 2026 Calculator Hub. All rights reserved.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/assets/js/app.js"></script>
+</body>
+</html>

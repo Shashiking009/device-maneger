@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Homepage -->
+  <url>
+    <loc>https://calculator-hub.com/</loc>
+    <lastmod>2026-07-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Category Pages -->
+  <url><loc>https://calculator-hub.com/calculators/education.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://calculator-hub.com/calculators/health.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://calculator-hub.com/calculators/finance.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://calculator-hub.com/calculators/developer.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://calculator-hub.com/calculators/math.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://calculator-hub.com/calculators/daily-tools.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://calculator-hub.com/calculators/fitness-advanced.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://calculator-hub.com/calculators/seo-tools.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+
+  <!-- 100 Calculators -->
+  <url><loc>https://calculator-hub.com/calculator.html?id=cgpa-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=gpa-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=percentage-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=marks-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=attendance-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=sgpa-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=grade-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=study-time-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=exam-score-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=rank-predictor</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=age-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=date-difference-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=semester-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=credit-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=average-calculator</loc><priority>0.9</priority></url>
+
+  <url><loc>https://calculator-hub.com/calculator.html?id=bmi-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=bmr-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=calorie-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=protein-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=water-intake-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=ideal-weight-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=body-fat-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=macro-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=running-calories-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=sleep-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=waist-height-ratio-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=lean-body-mass-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=weight-loss-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=heart-rate-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=pregnancy-due-date-calculator</loc><priority>0.9</priority></url>
+
+  <url><loc>https://calculator-hub.com/calculator.html?id=emi-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=loan-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=sip-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=fd-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=rd-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=compound-interest-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=simple-interest-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=gst-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=discount-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=salary-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=income-tax-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=inflation-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=investment-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=profit-loss-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=percentage-increase-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=currency-converter</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=tip-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=mortgage-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=savings-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=retirement-calculator</loc><priority>0.9</priority></url>
+
+  <url><loc>https://calculator-hub.com/calculator.html?id=password-generator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=qr-generator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=json-formatter</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=json-validator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=html-encoder</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=url-encoder</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=binary-converter</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=hex-converter</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=timestamp-converter</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=base-converter</loc><priority>0.9</priority></url>
+
+  <url><loc>https://calculator-hub.com/calculator.html?id=scientific-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=fraction-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=lcm-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=hcf-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=prime-number-checker</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=percentage-difference-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=area-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=volume-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=triangle-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=math-average-calculator</loc><priority>0.9</priority></url>
+
+  <url><loc>https://calculator-hub.com/calculator.html?id=time-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=age-difference-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=date-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=unit-converter</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=length-converter</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=weight-converter</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=temperature-converter</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=speed-converter</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=fuel-cost-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=electricity-bill-calculator</loc><priority>0.9</priority></url>
+
+  <url><loc>https://calculator-hub.com/calculator.html?id=bmi-male-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=bmi-female-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=calories-burned-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=pushup-calories-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=workout-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=one-rep-max-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=body-shape-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=water-weight-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=step-counter-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=walking-calories-calculator</loc><priority>0.9</priority></url>
+
+  <url><loc>https://calculator-hub.com/calculator.html?id=cgpa-to-percentage-converter</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=percentage-to-cgpa-converter</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=gpa-converter</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=days-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=hours-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=minutes-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=random-number-generator</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=password-strength-checker</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=character-counter</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=word-counter</loc><priority>0.9</priority></url>
+  <url><loc>https://calculator-hub.com/calculator.html?id=text-case-converter</loc><priority>0.9</priority></url>
+
+  <!-- Legal Pages -->
+  <url><loc>https://calculator-hub.com/pages/about.html</loc><priority>0.5</priority></url>
+  <url><loc>https://calculator-hub.com/pages/contact.html</loc><priority>0.5</priority></url>
+  <url><loc>https://calculator-hub.com/pages/privacy-policy.html</loc><priority>0.5</priority></url>
+  <url><loc>https://calculator-hub.com/pages/terms.html</loc><priority>0.5</priority></url>
+</urlset>
