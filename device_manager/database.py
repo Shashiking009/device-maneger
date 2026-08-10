@@ -178,6 +178,13 @@ def get_documents() -> List[Dict[str, Any]]:
     conn.close()
     return [dict(row) for row in rows]
 
+def delete_document(doc_id: int):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM documents WHERE id = ?", (doc_id,))
+    conn.commit()
+    conn.close()
+
 def check_db_integrity() -> bool:
     conn = get_connection()
     cursor = conn.cursor()
