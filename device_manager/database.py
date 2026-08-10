@@ -59,6 +59,26 @@ def init_db():
     )
     """)
     
+    # Memories table for Local Spidy AI Memory
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS memories (
+        id TEXT PRIMARY KEY,
+        category TEXT NOT NULL,
+        key TEXT NOT NULL,
+        value TEXT NOT NULL,
+        source TEXT NOT NULL,
+        confidence REAL NOT NULL,
+        importance TEXT NOT NULL,
+        scope TEXT NOT NULL,
+        created_at REAL NOT NULL,
+        updated_at REAL NOT NULL,
+        last_used_at REAL NOT NULL,
+        expires_at REAL
+    )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_memories_key ON memories(key)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_memories_category ON memories(category)")
+
     conn.commit()
     conn.close()
 

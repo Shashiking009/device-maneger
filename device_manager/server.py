@@ -306,6 +306,56 @@ def api_voice_stop():
 def api_voice_command(req: VoiceCommandRequest):
     return voice_manager.process_voice_text(req.command)
 
+# --- LOCAL MEMORY API ENDPOINTS ---
+
+from memory.models import Memory, MemoryCategory, MemorySource
+from memory.storage import memory_storage
+
+class MemorySaveRequest(BaseModel):
+    key: str
+    value: str
+    category: str = "PREFERENCE"
+
+@app.get("/api/memory")
+def api_get_memories(category: Optional[str] = None):
+    cat_enum = None
+    if category:
+        try:
+            cat_enum = MemoryCategory(category.upper())
+        except Exception:
+            pass
+    memories = memory_storage.list_memories(cat_enum)
+    return {"memories": [m.model_dump() for m in memories]}
+
+@app.post("/api/memory")
+def api_save_memory(req: MemorySaveRequest):
+    cat_enum = MemoryCategory.PREFERENCE
+    if hasattr(MemoryCategory, req.category.upper()):
+        cat_enum = MemoryCategory(req.category.upper())
+
+    mem = Memory(
+        category=cat_enum,
+        key=req.key,
+        value=req.value,
+        source=MemorySource.EXPLICIT_USER
+    )
+    succ, msg, stored_mem = memory_storage.save_memory(mem)
+    if not succ:
+        raise HTTPException(status_code=400, detail=msg)
+    return {"status": "success", "message": msg, "memory": stored_mem.model_dump() if stored_mem else None}
+
+@app.delete("/api/memory/{key_or_id}")
+def api_delete_memory(key_or_id: str):
+    succ = memory_storage.delete_memory(key_or_id)
+    if not succ:
+        raise HTTPException(status_code=404, detail=f"Memory '{key_or_id}' not found")
+    return {"status": "success", "message": f"Deleted memory '{key_or_id}'"}
+
+@app.post("/api/memory/clear")
+def api_clear_memories():
+    memory_storage.clear_all_memories()
+    return {"status": "success", "message": "All saved memories cleared"}
+
 # --- SYSTEM TELEMETRY & WEBSOCKET EVENT STREAM ---
 
 @app.get("/api/system", response_model=SystemStats)

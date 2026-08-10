@@ -40,6 +40,16 @@ class IntentRouter:
         if any(p in cmd for p in ["knowledge base", "my project plan", "my documents", "my files", "in my document", "document says", "file says"]):
             return Intent(name=IntentType.RAG_QUERY, confidence=1.0)
 
+        # 3b. Memory Intent Patterns
+        if "forget everything" in cmd or "clear all memory" in cmd or "delete all memories" in cmd:
+            return Intent(name=IntentType.MEMORY_CLEAR, confidence=1.0, requires_confirmation=True, risk_level=RiskLevel.HIGH)
+        if "forget" in cmd or "delete memory" in cmd:
+            return Intent(name=IntentType.MEMORY_DELETE, confidence=1.0)
+        if "what do you remember" in cmd or "show my memories" in cmd or "list memories" in cmd:
+            return Intent(name=IntentType.MEMORY_QUERY, confidence=1.0)
+        if "remember" in cmd or "my favorite" in cmd:
+            return Intent(name=IntentType.MEMORY_SAVE, confidence=1.0)
+
         # 4. Keyboard Controls
         if "select all" in cmd:
             return Intent(name=IntentType.KEY_PRESS, target="ctrl+a", confidence=1.0, parameters={"raw_cmd": "select all"})

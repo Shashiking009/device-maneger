@@ -10,12 +10,14 @@ from database import add_message
 
 from actions.planner import planner
 from actions.executor import action_executor
+from memory.context_manager import context_manager
+from memory.memory_service import memory_service
 
 class SpidyOrchestrator:
     """
     Central Decision-Making Entry Point for Spidy AI.
     Processes both text commands and voice inputs through a single unified pipeline:
-    Input -> Normalize -> Action Planning -> Permission Check -> Command Execution -> SpidyResponse
+    Input -> Normalize -> Context Resolution -> Action Planning -> Permission Check -> Command Execution -> SpidyResponse
     """
     def __init__(self):
         self.router = IntentRouter()
@@ -26,8 +28,11 @@ class SpidyOrchestrator:
     def process_command(self, user_input: str, session_id: Optional[str] = None, use_rag: bool = True) -> SpidyResponse:
         start_t = time.time()
 
-        # 0. Multi-Step Action Planning check
-        plan = planner.create_plan(user_input)
+        # 0a. Resolve Pronoun / Memory References ("Open my editor" -> "Open VS Code")
+        user_input_resolved = context_manager.resolve_reference(user_input, session_id=session_id)
+
+        # 0b. Multi-Step Action Planning check
+        plan = planner.create_plan(user_input_resolved)
         if len(plan.actions) > 1:
             res_plan = action_executor.execute_plan(plan)
             latency_ms = round((time.time() - start_t) * 1000, 2)
@@ -42,7 +47,29 @@ class SpidyOrchestrator:
             )
         
         # 1. Route Intent
-        intent = self.router.route(user_input)
+        intent = self.router.route(user_input_resolved)
+
+        # 1b. Handle Memory Intents (MEMORY_SAVE, MEMORY_QUERY, MEMORY_DELETE, MEMORY_CLEAR)
+        if intent.name in [IntentType.MEMORY_SAVE, IntentType.MEMORY_QUERY, IntentType.MEMORY_DELETE, IntentType.MEMORY_CLEAR]:
+            if intent.name == IntentType.MEMORY_CLEAR and not intent.parameters.get("confirmed", False):
+                return SpidyResponse(
+                    success=False,
+                    intent=intent.name,
+                    message="This will delete all long-term memories. Confirm with 'Yes' to proceed.",
+                    requires_confirmation=True
+                )
+            if intent.name == IntentType.MEMORY_CLEAR and intent.parameters.get("confirmed", False):
+                from memory.storage import memory_storage
+                memory_storage.clear_all_memories()
+                return SpidyResponse(success=True, intent=intent.name, message="Cleared all saved memories.")
+
+            succ, msg, data = memory_service.process_memory_command(user_input_resolved)
+            return SpidyResponse(
+                success=succ,
+                intent=intent.name,
+                message=msg,
+                data=data or {}
+            )
 
         # 2. Risk & Permission Check
         self.permission_mgr.assess_risk(intent)
