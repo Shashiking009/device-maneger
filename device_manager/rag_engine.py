@@ -3,9 +3,9 @@ import re
 import math
 import json
 from typing import List, Dict, Any, Tuple
+from config import UPLOAD_DIR
 
-UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploaded_docs")
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+UPLOAD_DIR = str(UPLOAD_DIR)
 
 class RAGEngine:
     def __init__(self):

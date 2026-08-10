@@ -15,11 +15,13 @@ from database import (
     add_message, get_session_messages, add_document, get_documents, delete_document
 )
 from system_monitor import get_system_metrics
-from rag_engine import rag_engine, UPLOAD_DIR
+from rag_engine import rag_engine
 from voice_assistant import execute_voice_command
+from config import HOST, PORT, OLLAMA_HOST, OLLAMA_MODEL, UPLOAD_DIR
 
-OLLAMA_URL = "http://localhost:11434"
-DEFAULT_MODEL = "qwen3:1.7b"
+OLLAMA_URL = OLLAMA_HOST
+DEFAULT_MODEL = OLLAMA_MODEL
+UPLOAD_DIR = str(UPLOAD_DIR)
 
 app = FastAPI(title="Device Manager API", version="1.0.0")
 
@@ -292,5 +294,5 @@ def api_voice_command(req: VoiceCommandRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    print("Starting Device Manager FastAPI Server on http://127.0.0.1:8000")
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    print(f"Starting Device Manager FastAPI Server on http://{HOST}:{PORT}")
+    uvicorn.run(app, host=HOST, port=PORT)

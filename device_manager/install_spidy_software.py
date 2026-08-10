@@ -2,9 +2,10 @@ import os
 import sys
 import subprocess
 import win32com.client
+from config import HOST, PORT, BASE_DIR
 
 STARTUP_FOLDER = os.path.expandvars(r"%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup")
-DEVICE_MANAGER_DIR = os.path.dirname(os.path.abspath(__file__))
+DEVICE_MANAGER_DIR = str(BASE_DIR)
 PYTHON_EXE = sys.executable
 
 shell = win32com.client.Dispatch("WScript.Shell")
@@ -34,7 +35,7 @@ def setup_boot_startup():
     # Launches FastAPI server silently and launches Spidy Cyber Floating HUD
     bat_content = f"""@echo off
 cd /d "{DEVICE_MANAGER_DIR}"
-start /b "" "{PYTHON_EXE}" -m uvicorn server:app --host 127.0.0.1 --port 8088
+start /b "" "{PYTHON_EXE}" -m uvicorn server:app --host {HOST} --port {PORT}
 timeout /t 2 /nobreak >nul
 start /b "" "{PYTHON_EXE}" spidy_hud.py
 """

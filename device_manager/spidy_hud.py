@@ -39,7 +39,7 @@ def show_windows_toast(title: str, message: str):
     except Exception:
         pass
 
-SERVER_URL = "http://127.0.0.1:8088"
+from config import SERVER_URL
 
 class SpidyCyberHUD:
     def __init__(self):

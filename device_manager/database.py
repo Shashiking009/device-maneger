@@ -3,11 +3,10 @@ import json
 import time
 import os
 from typing import List, Dict, Any, Optional
-
-DB_PATH = os.path.join(os.path.dirname(__file__), "device_manager.db")
+from config import DATABASE_PATH
 
 def get_connection():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(str(DATABASE_PATH))
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -168,4 +167,4 @@ def delete_document(doc_id: int):
 
 if __name__ == "__main__":
     init_db()
-    print("Database initialized successfully at:", DB_PATH)
+    print("Database initialized successfully at:", DATABASE_PATH)

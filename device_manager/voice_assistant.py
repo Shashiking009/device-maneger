@@ -6,8 +6,10 @@ import re
 import psutil
 from typing import Dict, Any
 
-UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploaded_docs")
-WORKSPACE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from config import UPLOAD_DIR, WORKSPACE_DIR, SERVER_URL
+
+UPLOAD_DIR = str(UPLOAD_DIR)
+WORKSPACE_DIR = str(WORKSPACE_DIR)
 
 KNOWN_APPS = {
     "calculator": {
@@ -43,7 +45,7 @@ KNOWN_APPS = {
         "processes": ["taskmgr.exe"]
     },
     "browser": {
-        "exec": ["start", "http://127.0.0.1:8088"],
+        "exec": ["start", SERVER_URL],
         "processes": ["chrome.exe", "msedge.exe", "firefox.exe"]
     },
     "chrome": {
@@ -180,8 +182,7 @@ def execute_voice_command(command: str) -> Dict[str, Any]:
         if target_name:
             search_dirs = [
                 UPLOAD_DIR,
-                WORKSPACE_DIR,
-                r"C:\Users\sasi vardhan.P\.gemini\antigravity\brain\476a2db5-13c2-44bd-9c48-595dd8c6a927"
+                WORKSPACE_DIR
             ]
             candidates = []
             for search_dir in search_dirs:

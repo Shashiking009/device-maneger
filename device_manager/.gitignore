@@ -1,6 +1,11 @@
 __pycache__/
 *.pyc
 *.db
+.env
+.venv/
+venv/
+logs/
+data/
+vector_store/
 uploaded_docs/*
 !uploaded_docs/.gitkeep
-start_spidy_background.bat
