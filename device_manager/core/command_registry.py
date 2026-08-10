@@ -1,7 +1,7 @@
 import os
 import platform
 import subprocess
-from typing import Dict, Any, Callable
+from typing import Dict, Any, Callable, Tuple
 from core.intent_models import Intent, IntentType, SpidyResponse
 from voice_assistant import close_application_process, KNOWN_APPS, KNOWN_FOLDERS, UPLOAD_DIR, WORKSPACE_DIR
 from voice_automation import execute_automation_command
@@ -218,3 +218,54 @@ class CommandRegistry:
             intent=intent.name,
             message="Checking system diagnostics. Check the system telemetry dashboard for real-time CPU and Memory stats."
         )
+
+    # --- ACTION EXECUTOR HELPER METHODS ---
+
+    def execute_open_app(self, app_name: str) -> Tuple[bool, str]:
+        intent = Intent(name=IntentType.OPEN_APPLICATION, confidence=1.0, target=app_name)
+        resp = self._handle_open_app(intent)
+        return resp.success, resp.message
+
+    def execute_close_app(self, app_name: str) -> Tuple[bool, str]:
+        intent = Intent(name=IntentType.CLOSE_APPLICATION, confidence=1.0, target=app_name)
+        resp = self._handle_close_app(intent)
+        return resp.success, resp.message
+
+    def execute_type_text(self, text: str) -> Tuple[bool, str]:
+        intent = Intent(name=IntentType.TYPE_TEXT, confidence=1.0, parameters={"text": text})
+        resp = self._handle_automation_action(intent)
+        return resp.success, resp.message
+
+    def execute_volume_change(self, action: str) -> Tuple[bool, str]:
+        type_map = {
+            "up": IntentType.VOLUME_UP,
+            "down": IntentType.VOLUME_DOWN,
+            "mute": IntentType.MUTE,
+            "unmute": IntentType.UNMUTE
+        }
+        intent_type = type_map.get(action.lower(), IntentType.VOLUME_UP)
+        intent = Intent(name=intent_type, confidence=1.0)
+        resp = self._handle_automation_action(intent)
+        return resp.success, resp.message
+
+    def execute_lock_screen(self) -> Tuple[bool, str]:
+        intent = Intent(name=IntentType.LOCK_SYSTEM, confidence=1.0)
+        resp = self._handle_automation_action(intent)
+        return resp.success, resp.message
+
+    def verify_app_running(self, app_name: str) -> bool:
+        import psutil
+        canonical = normalize_app_name(app_name)
+        app_info = KNOWN_APPS.get(canonical)
+        if not app_info:
+            return True
+        procs = [p.lower() for p in app_info.get("processes", [])]
+        for p in psutil.process_iter(['name']):
+            try:
+                if p.info['name'] and p.info['name'].lower() in procs:
+                    return True
+            except Exception:
+                pass
+        return False
+
+command_registry = CommandRegistry()

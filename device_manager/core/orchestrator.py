@@ -8,11 +8,14 @@ from ai.qwen_engine import qwen_engine
 from rag.rag_engine import rag_service
 from database import add_message
 
+from actions.planner import planner
+from actions.executor import action_executor
+
 class SpidyOrchestrator:
     """
     Central Decision-Making Entry Point for Spidy AI.
     Processes both text commands and voice inputs through a single unified pipeline:
-    Input -> Normalize -> Deterministic Intent Detection -> (Qwen Fallback) -> Permission Check -> Command Execution -> SpidyResponse
+    Input -> Normalize -> Action Planning -> Permission Check -> Command Execution -> SpidyResponse
     """
     def __init__(self):
         self.router = IntentRouter()
@@ -22,6 +25,21 @@ class SpidyOrchestrator:
 
     def process_command(self, user_input: str, session_id: Optional[str] = None, use_rag: bool = True) -> SpidyResponse:
         start_t = time.time()
+
+        # 0. Multi-Step Action Planning check
+        plan = planner.create_plan(user_input)
+        if len(plan.actions) > 1:
+            res_plan = action_executor.execute_plan(plan)
+            latency_ms = round((time.time() - start_t) * 1000, 2)
+            succ = res_plan.status.value == "COMPLETED"
+            summary_msg = f"Executed {len(res_plan.actions)} actions: " + ", ".join([a.message for a in res_plan.actions if a.message])
+            print(f"[ORCHESTRATOR LOG] input='{user_input}' | intent=MULTI_ACTION | steps={len(res_plan.actions)} | success={succ} | latency={latency_ms}ms")
+            return SpidyResponse(
+                success=succ,
+                intent=IntentType.OPEN_APPLICATION,
+                message=summary_msg,
+                data={"plan_id": res_plan.plan_id, "steps": len(res_plan.actions)}
+            )
         
         # 1. Route Intent
         intent = self.router.route(user_input)
