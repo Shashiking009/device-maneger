@@ -2,6 +2,7 @@ import time
 import threading
 from typing import List, Callable, Dict, Any
 from voice.models import VoiceState, VoiceEvent
+from events import event_bus, SpidyEvent
 
 class VoiceStateMachine:
     """
@@ -42,5 +43,17 @@ class VoiceStateMachine:
                 callback(event)
             except Exception as e:
                 print(f"[VOICE STATE CALLBACK ERROR]: {e}")
+
+        # Broadcast to event_bus for WebSockets
+        try:
+            event_bus.publish(SpidyEvent(
+                event_type="VOICE_STATE_CHANGED",
+                state=new_state.value,
+                timestamp=time.time(),
+                message=message or f"State changed to {new_state.value}",
+                data=metadata or {}
+            ))
+        except Exception:
+            pass
 
 voice_state_machine = VoiceStateMachine()

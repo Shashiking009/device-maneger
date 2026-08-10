@@ -4,11 +4,14 @@ import uuid
 import time
 import requests
 from typing import List, Dict, Any, Optional, Tuple
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks, Query, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
+from telemetry import get_system_telemetry, SystemStats
+from events import event_bus, SpidyEvent
 
 from database import init_db, create_session, get_sessions, get_session_messages, add_message, add_document, get_documents, delete_document, delete_session
 from voice_assistant import execute_voice_command
@@ -302,6 +305,36 @@ def api_voice_stop():
 @app.post("/api/voice/command")
 def api_voice_command(req: VoiceCommandRequest):
     return voice_manager.process_voice_text(req.command)
+
+# --- SYSTEM TELEMETRY & WEBSOCKET EVENT STREAM ---
+
+@app.get("/api/system", response_model=SystemStats)
+def api_system_telemetry():
+    return get_system_telemetry()
+
+@app.websocket("/ws/spidy")
+async def websocket_spidy(websocket: WebSocket):
+    await websocket.accept()
+    event_bus.register_ws(websocket)
+    
+    # Send initial READY event
+    await websocket.send_json({
+        "event_type": "SYSTEM_READY",
+        "state": voice_state_machine.current_state.value,
+        "timestamp": time.time(),
+        "message": "Connected to Spidy AI WebSocket stream."
+    })
+    
+    try:
+        while True:
+            # Keep connection alive & handle incoming pings
+            data = await websocket.receive_text()
+            if data == "ping":
+                await websocket.send_json({"event_type": "PONG", "timestamp": time.time()})
+    except WebSocketDisconnect:
+        event_bus.unregister_ws(websocket)
+    except Exception:
+        event_bus.unregister_ws(websocket)
 
 if __name__ == "__main__":
     import uvicorn
