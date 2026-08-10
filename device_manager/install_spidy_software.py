@@ -9,12 +9,11 @@ PYTHON_EXE = sys.executable
 
 shell = win32com.client.Dispatch("WScript.Shell")
 
-# Get active Windows desktop path (handles OneDrive Desktop)
 ACTIVE_DESKTOP = shell.SpecialFolders("Desktop")
 USER_DESKTOP = os.path.expanduser("~/Desktop")
 ONEDRIVE_DESKTOP = os.path.expanduser("~/OneDrive/Desktop")
 
-BAT_SCRIPT_PATH = os.path.join(DEVICE_MANAGER_DIR, "start_spidy_background.bat")
+BAT_SCRIPT_PATH = os.path.join(DEVICE_MANAGER_DIR, "start_spidy_jarvis.bat")
 VBS_STARTUP_PATH = os.path.join(STARTUP_FOLDER, "Spidy_DeviceManager_Startup.vbs")
 
 def create_desktop_shortcut():
@@ -25,19 +24,19 @@ def create_desktop_shortcut():
             shortcut = shell.CreateShortCut(shortcut_path)
             shortcut.TargetPath = BAT_SCRIPT_PATH
             shortcut.WorkingDirectory = DEVICE_MANAGER_DIR
-            shortcut.Description = "Device Manager & Hands-Free Spidy Voice AI Assistant"
+            shortcut.Description = "JARVIS Spidy Floating Mic Arc Reactor HUD Assistant"
             shortcut.WindowStyle = 7 # Minimized
-            shortcut.IconLocation = r"C:\Windows\System32\shell32.dll,14" # Microchip / AI icon
+            shortcut.IconLocation = r"C:\Windows\System32\shell32.dll,14" # AI Microchip icon
             shortcut.save()
-            print(f"Created Desktop Shortcut at: {shortcut_path}")
+            print(f"Created JARVIS Spidy Desktop Shortcut: {shortcut_path}")
 
 def setup_boot_startup():
+    # Launches FastAPI server silently and launches JARVIS Arc Reactor Floating HUD widget!
     bat_content = f"""@echo off
 cd /d "{DEVICE_MANAGER_DIR}"
 start /b "" "{PYTHON_EXE}" -m uvicorn server:app --host 127.0.0.1 --port 8088
-timeout /t 3 /nobreak >nul
-start /b "" "{PYTHON_EXE}" spidy_listener.py
-start "" "http://127.0.0.1:8088"
+timeout /t 2 /nobreak >nul
+start /b "" "{PYTHON_EXE}" spidy_jarvis_hud.py
 """
     with open(BAT_SCRIPT_PATH, "w", encoding="utf-8") as f:
         f.write(bat_content)
@@ -48,9 +47,12 @@ Set WshShell = Nothing
 """
     with open(VBS_STARTUP_PATH, "w", encoding="utf-8") as f:
         f.write(vbs_content)
-    print(f"Configured Windows Startup: {VBS_STARTUP_PATH}")
+    print(f"Configured Windows Startup for JARVIS Spidy: {VBS_STARTUP_PATH}")
 
 if __name__ == "__main__":
+    print("\n=======================================================")
+    print(" INSTALLING JARVIS SPIDY FLOATING HUD SOFTWARE")
+    print("=======================================================\n")
     setup_boot_startup()
     create_desktop_shortcut()
-    print("SUCCESS! Device Manager & Spidy AI shortcut installed on active Desktop.")
+    print("SUCCESS! Double-clicking desktop icon launches JARVIS Spidy Arc Reactor Mic HUD.")
