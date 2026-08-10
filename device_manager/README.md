@@ -26,24 +26,19 @@ Spidy AI is an offline-first, Jarvis-inspired intelligent desktop assistant powe
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Windows Quick Start
 
-1. **Install Dependencies:**
-   ```bash
-   pip install -r requirements.txt
+1. Install Python 3.11+ and Ollama (`ollama pull qwen3:1.7b`).
+2. Open **Command Prompt (CMD)**.
+3. Navigate to repository:
+   ```cmd
+   cd /d "C:\Users\sasi vardhan.P\myname\device_manager"
    ```
-2. **Start Ollama & Pull Qwen3 Model:**
-   ```bash
-   ollama pull qwen3:1.7b
+4. Run official launcher:
+   ```cmd
+   start_spidy.bat
    ```
-3. **Run Installer:**
-   ```bash
-   python install_spidy_software.py
-   ```
-4. **Launch Spidy AI:**
-   ```bash
-   python server.py
-   ```
+5. Wait for `SPIDY AI IS READY` and say **"Hey Spidy..."** in any Windows application!
 
 ---
 
