@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.db
+uploaded_docs/*
+!uploaded_docs/.gitkeep
+start_spidy_background.bat

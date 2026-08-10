@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Manager | Cybernetic On-Device SLM & Spidy HUD</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Highlight.js for Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/tokyo-night-dark.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="cyber-theme">
+    <!-- Animated Grid Overlay -->
+    <div class="cyber-grid-overlay"></div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar cyber-panel">
+            <div class="brand-header">
+                <div class="logo-icon cyber-glow-box">
+                    <i class="fa-solid fa-spider glowing-cyber-icon"></i>
+                </div>
+                <div class="brand-text">
+                    <h2 class="cyber-font">DEVICE MANAGER</h2>
+                    <span class="badge offline-badge"><i class="fa-solid fa-shield-halved"></i> OFFLINE SLM</span>
+                </div>
+            </div>
+
+            <button id="btn-new-chat" class="btn-cyber-primary new-chat-btn">
+                <i class="fa-solid fa-plus"></i> NEW CONVERSATION
+            </button>
+
+            <!-- Conversations List -->
+            <div class="sidebar-section">
+                <div class="section-title cyber-font">
+                    <span>ACTIVE SESSIONS</span>
+                    <i class="fa-solid fa-terminal"></i>
+                </div>
+                <ul id="sessions-list" class="sessions-list">
+                    <li class="empty-state">No active sessions</li>
+                </ul>
+            </div>
+
+            <!-- Knowledge Base RAG Section -->
+            <div class="sidebar-section">
+                <div class="section-title cyber-font">
+                    <span>KNOWLEDGE BASE (RAG)</span>
+                    <button id="btn-open-rag-modal" class="btn-icon-small cyber-icon-btn" title="Manage Files">
+                        <i class="fa-solid fa-database"></i>
+                    </button>
+                </div>
+                <ul id="docs-sidebar-list" class="docs-list">
+                    <li class="empty-state">No local documents indexed</li>
+                </ul>
+            </div>
+
+            <!-- System Hardware Telemetry Widget -->
+            <div class="system-widget cyber-card">
+                <div class="widget-header cyber-font">
+                    <span>SYSTEM HARDWARE</span>
+                    <span id="ollama-status-dot" class="status-dot dot-online" title="Ollama Engine Online"></span>
+                </div>
+                <div class="telemetry-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">CPU USAGE</div>
+                        <div class="metric-val neon-cyan" id="metric-cpu-val">0%</div>
+                        <div class="progress-bar"><div id="progress-cpu" class="bar-fill cyan-fill" style="width: 0%;"></div></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">MEMORY</div>
+                        <div class="metric-val neon-purple" id="metric-ram-val">0 / 0 GB</div>
+                        <div class="progress-bar"><div id="progress-ram" class="bar-fill purple-fill" style="width: 0%;"></div></div>
+                    </div>
+                </div>
+                <div class="model-info-row">
+                    <i class="fa-solid fa-microchip neon-cyan"></i>
+                    <span id="active-model-name">qwen3:1.7b</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-main">
+            <!-- Header Bar -->
+            <header class="chat-header cyber-header">
+                <div class="header-left">
+                    <h3 id="current-chat-title" class="cyber-font">New Conversation</h3>
+                    <div class="model-pill cyber-pill">
+                        <i class="fa-solid fa-bolt text-neon-cyan"></i>
+                        <span>Qwen3 SLM (4-bit GGUF)</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button id="btn-spidy-voice" class="btn-spidy cyber-spidy-btn" title="Wake phrase: Hey Spidy">
+                        <i class="fa-solid fa-microphone glowing-mic"></i>
+                        <span>Hey Spidy</span>
+                    </button>
+                    <button id="btn-system-modal" class="btn-secondary cyber-btn">
+                        <i class="fa-solid fa-chart-pie"></i> Diagnostics
+                    </button>
+                    <button id="btn-clear-chat" class="btn-secondary cyber-btn" title="Clear Chat">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Spidy Voice Visualizer Banner -->
+            <div id="spidy-banner" class="spidy-banner cyber-spidy-banner hidden">
+                <div class="spidy-ring-container">
+                    <div class="spidy-ring"></div>
+                    <span class="spidy-icon">🕷️</span>
+                </div>
+                <div class="spidy-info">
+                    <div class="spidy-title cyber-font" id="spidy-title">SPIDY WAKE PHRASE DETECTED</div>
+                    <div class="spidy-sub" id="spidy-sub">Listening for command... (e.g. "Hey Spidy open calculator", "Hey Spidy close calculator")</div>
+                </div>
+                <button class="btn-icon-small text-muted" id="btn-close-spidy"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Chat Messages Scroll Container -->
+            <div id="chat-messages" class="chat-messages">
+                <!-- Welcome Banner -->
+                <div class="welcome-card cyber-card-lg" id="welcome-card">
+                    <div class="welcome-icon cyber-glow-box">
+                        <i class="fa-solid fa-spider"></i>
+                    </div>
+                    <h1 class="cyber-font glow-text">SPIDY DEVICE MANAGER</h1>
+                    <p>On-Device SLM Intelligence & Voice Command Orchestrator powered by <strong>Qwen3</strong>.</p>
+
+                    <div class="quick-prompts-grid">
+                        <button class="prompt-chip cyber-chip" data-prompt="Hey Spidy open calculator">
+                            <i class="fa-solid fa-calculator text-neon-cyan"></i> Open Calculator App
+                        </button>
+                        <button class="prompt-chip cyber-chip" data-prompt="Hey Spidy close calculator">
+                            <i class="fa-solid fa-xmark text-neon-pink"></i> Close Calculator App
+                        </button>
+                        <button class="prompt-chip cyber-chip" data-prompt="Hey Spidy open downloads folder">
+                            <i class="fa-solid fa-folder-open text-neon-purple"></i> Open Downloads Folder
+                        </button>
+                        <button class="prompt-chip cyber-chip" data-prompt="Summarize my device hardware specs and memory footprint.">
+                            <i class="fa-solid fa-laptop-code text-neon-green"></i> Hardware Diagnostics
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Footer -->
+            <footer class="chat-input-area">
+                <div class="input-controls-bar">
+                    <label class="toggle-control" title="Include uploaded documents in prompt context">
+                        <input type="checkbox" id="toggle-rag" checked>
+                        <span class="slider cyber-slider"></span>
+                        <span class="toggle-label cyber-font"><i class="fa-solid fa-book-open"></i> RAG Knowledge Base</span>
+                    </label>
+
+                    <div class="temp-control">
+                        <span class="cyber-font">Temp: <strong id="temp-val" class="neon-cyan">0.7</strong></span>
+                        <input type="range" id="input-temp" min="0.1" max="1.5" step="0.1" value="0.7" class="cyber-range">
+                    </div>
+
+                    <span class="privacy-note neon-green"><i class="fa-solid fa-lock"></i> Zero Telemetry</span>
+                </div>
+
+                <div class="input-box-wrapper cyber-input-box">
+                    <button id="btn-attach-file" class="btn-input-action" title="Attach Document to RAG">
+                        <i class="fa-solid fa-paperclip"></i>
+                    </button>
+                    <textarea id="user-input" placeholder="Say 'Hey Spidy...' or type your prompt (Shift+Enter for newline)..." rows="1"></textarea>
+                    <button id="btn-send" class="btn-send cyber-send-btn">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- RAG Knowledge Base Modal -->
+    <div id="rag-modal" class="modal-backdrop hidden">
+        <div class="modal-card cyber-modal">
+            <div class="modal-header">
+                <h3 class="cyber-font"><i class="fa-solid fa-database text-neon-cyan"></i> LOCAL RAG KNOWLEDGE BASE</h3>
+                <button class="btn-close-modal" id="btn-close-rag-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>Upload text, markdown, python, or JSON files to index them locally in the vector database.</p>
+                <div class="upload-dropzone cyber-dropzone" id="upload-dropzone">
+                    <i class="fa-solid fa-cloud-arrow-up drop-icon neon-cyan"></i>
+                    <h4 class="cyber-font">DRAG & DROP FILES HERE</h4>
+                    <p>or click to browse (.txt, .md, .py, .json, .csv)</p>
+                    <input type="file" id="file-input" hidden multiple accept=".txt,.md,.py,.json,.csv,.js,.html,.css,.pdf">
+                </div>
+
+                <h4 class="sub-heading cyber-font mt-20">INDEXED DOCUMENTS</h4>
+                <div class="modal-docs-list" id="modal-docs-list">
+                    <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading docs...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diagnostics System Modal -->
+    <div id="system-modal" class="modal-backdrop hidden">
+        <div class="modal-card wide-modal cyber-modal">
+            <div class="modal-header">
+                <h3 class="cyber-font"><i class="fa-solid fa-microchip text-neon-purple"></i> SYSTEM HARDWARE DIAGNOSTICS</h3>
+                <button class="btn-close-modal" id="btn-close-sys-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="diagnostics-grid">
+                    <div class="diag-card cyber-diag">
+                        <h4><i class="fa-solid fa-desktop"></i> OPERATING SYSTEM</h4>
+                        <div class="diag-val neon-cyan" id="diag-os">Loading...</div>
+                    </div>
+                    <div class="diag-card cyber-diag">
+                        <h4><i class="fa-solid fa-microchip"></i> CPU CORES</h4>
+                        <div class="diag-val neon-purple" id="diag-cpu-cores">- Cores</div>
+                    </div>
+                    <div class="diag-card cyber-diag">
+                        <h4><i class="fa-solid fa-memory"></i> TOTAL MEMORY</h4>
+                        <div class="diag-val neon-green" id="diag-ram-total">- GB</div>
+                    </div>
+                    <div class="diag-card cyber-diag">
+                        <h4><i class="fa-solid fa-hard-drive"></i> DISK STORAGE</h4>
+                        <div class="diag-val text-neon-pink" id="diag-disk-total">- GB</div>
+                    </div>
+                </div>
+
+                <h4 class="sub-heading cyber-font mt-20">OLLAMA LOCAL ENGINE STATUS</h4>
+                <div class="ollama-info-box cyber-code-box" id="ollama-info-box">
+                    <i class="fa-solid fa-spinner fa-spin"></i> Querying Ollama engine...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Highlight.js & Marked.js for Markdown Rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="/static/app.js"></script>
+</body>
+</html>
