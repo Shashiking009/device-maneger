@@ -2,7 +2,7 @@ import re
 from typing import List, Dict, Any, Optional
 from actions.models import Action, ActionPlan, ActionType, RiskLevel, ActionStatus
 from actions.validator import validator
-from actions.config import MAX_PLAN_STEPS
+from actions.config import MAX_PLAN_STEPS, ALLOWED_APPLICATIONS
 
 class ActionPlanner:
     """
@@ -44,13 +44,19 @@ class ActionPlanner:
         return plan
 
     def _parse_part_to_action(self, part: str) -> Optional[Action]:
+        clean_part = part.strip()
+
         # Open Application
-        open_match = re.search(r"\b(open|launch|start)\s+([a-z0-9\s]+)", part)
+        open_match = re.search(r"\b(open|launch|start)\s+([a-z0-9\s]+)", clean_part)
         if open_match:
             app_name = open_match.group(2).strip()
             # Remove filler words
             app_name = re.sub(r"\b(app|application|the)\b", "", app_name).strip()
             return Action(action_type=ActionType.OPEN_APPLICATION, parameters={"application": app_name})
+
+        # Check if clean_part itself is in ALLOWED_APPLICATIONS
+        if clean_part.lower() in ALLOWED_APPLICATIONS:
+            return Action(action_type=ActionType.OPEN_APPLICATION, parameters={"application": clean_part.lower()})
 
         # Close Application
         close_match = re.search(r"\b(close|quit|exit|stop)\s+([a-z0-9\s]+)", part)

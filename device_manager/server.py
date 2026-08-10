@@ -28,7 +28,7 @@ app = FastAPI(title="Device Manager API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://127.0.0.1:8088", "http://localhost:8088", "http://127.0.0.1:3000", "*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,6 +41,35 @@ init_db()
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 os.makedirs(STATIC_DIR, exist_ok=True)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+@app.get("/health")
+def api_health():
+    from database import check_db_integrity
+    from voice.audio_manager import audio_manager
+    
+    ollama_ok = False
+    try:
+        r = requests.get(f"{OLLAMA_HOST}/api/tags", timeout=2)
+        ollama_ok = r.status_code == 200
+    except Exception:
+        ollama_ok = False
+
+    db_ok = check_db_integrity()
+    rag_status = rag_service.status()
+
+    return {
+        "status": "ok" if (db_ok and rag_status.ready) else "degraded",
+        "version": "1.0.0",
+        "services": {
+            "fastapi": True,
+            "ollama": ollama_ok,
+            "database": db_ok,
+            "rag": rag_status.ready,
+            "memory": True,
+            "voice": audio_manager.is_available,
+            "hud": True
+        }
+    }
 
 class ChatRequest(BaseModel):
     session_id: str

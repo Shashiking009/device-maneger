@@ -178,13 +178,35 @@ def get_documents() -> List[Dict[str, Any]]:
     conn.close()
     return [dict(row) for row in rows]
 
-def delete_document(doc_id: int):
+def check_db_integrity() -> bool:
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM documents WHERE id = ?", (doc_id,))
-    conn.commit()
-    conn.close()
+    try:
+        cursor.execute("PRAGMA integrity_check")
+        row = cursor.fetchone()
+        is_ok = row[0] == "ok" if row else False
+        cursor.execute("PRAGMA foreign_key_check")
+        fk_errors = cursor.fetchall()
+        return is_ok and len(fk_errors) == 0
+    except Exception as e:
+        print(f"[DB INTEGRITY ERROR]: {e}")
+        return False
+    finally:
+        conn.close()
+
+def create_db_backup() -> Optional[str]:
+    from config import BACKUP_DIR
+    import shutil
+    try:
+        if os.path.exists(DATABASE_PATH):
+            backup_file = BACKUP_DIR / f"device_manager_backup_{int(time.time())}.db"
+            shutil.copy2(DATABASE_PATH, backup_file)
+            return str(backup_file)
+    except Exception as e:
+        print(f"[DB BACKUP WARNING]: {e}")
+    return None
 
 if __name__ == "__main__":
     init_db()
-    print("Database initialized successfully at:", DATABASE_PATH)
+    ok = check_db_integrity()
+    print(f"Database initialized at: {DATABASE_PATH} | Integrity: {'OK' if ok else 'FAILED'}")
