@@ -18,6 +18,7 @@ from system_monitor import get_system_metrics
 from rag_engine import rag_engine
 from voice_assistant import execute_voice_command
 from config import HOST, PORT, OLLAMA_HOST, OLLAMA_MODEL, UPLOAD_DIR
+from core.orchestrator import orchestrator
 
 OLLAMA_URL = OLLAMA_HOST
 DEFAULT_MODEL = OLLAMA_MODEL
@@ -141,48 +142,15 @@ def build_prompt_with_rag(query: str, history: List[Dict[str, Any]], use_rag: bo
 
 @app.post("/api/chat")
 def api_chat(req: ChatRequest):
-    # Save user message
-    history = get_session_messages(req.session_id)
-    add_message(req.session_id, "user", req.message)
-
-    prompt, sources = build_prompt_with_rag(req.message, history, req.use_rag)
-
-    start_time = time.time()
-    model_name = req.model or DEFAULT_MODEL
-
-    try:
-        ollama_res = requests.post(
-            f"{OLLAMA_URL}/api/generate",
-            json={
-                "model": model_name,
-                "prompt": prompt,
-                "stream": False,
-                "options": {
-                    "temperature": req.temperature
-                }
-            },
-            timeout=120
-        )
-        if ollama_res.status_code == 200:
-            data = ollama_res.json()
-            reply = data.get("response", "").strip()
-            total_duration_ns = data.get("total_duration", 0)
-            eval_count = data.get("eval_count", 0)
-            tps = round((eval_count / (total_duration_ns / 1e9)), 1) if total_duration_ns > 0 else 0.0
-
-            msg_id = add_message(req.session_id, "assistant", reply, sources=sources, tokens_per_sec=tps)
-            return {
-                "id": msg_id,
-                "role": "assistant",
-                "content": reply,
-                "sources": sources,
-                "tokens_per_sec": tps,
-                "model": model_name
-            }
-    except Exception as e:
-        fallback_reply = f"[Device Manager Local Error]: Could not query Ollama engine ({str(e)}). Ensure Ollama is active locally."
-        add_message(req.session_id, "assistant", fallback_reply)
-        return {"role": "assistant", "content": fallback_reply, "sources": []}
+    resp = orchestrator.process_command(req.message, session_id=req.session_id, use_rag=req.use_rag)
+    return {
+        "role": "assistant",
+        "content": resp.message,
+        "intent": resp.intent.value,
+        "sources": resp.sources or [],
+        "tokens_per_sec": resp.tokens_per_sec or 0.0,
+        "model": req.model or DEFAULT_MODEL
+    }
 
 @app.post("/api/chat/stream")
 def api_chat_stream(req: ChatRequest):
@@ -290,7 +258,16 @@ def api_delete_document(doc_id: int):
 
 @app.post("/api/voice/command")
 def api_voice_command(req: VoiceCommandRequest):
-    return execute_voice_command(req.command)
+    resp = orchestrator.process_command(req.command)
+    return {
+        "status": "success" if resp.success else ("ai_query" if resp.intent.value in ["AI_QUESTION", "RAG_QUERY"] else "error"),
+        "action": resp.intent.value,
+        "intent": resp.intent.value,
+        "message": resp.message,
+        "data": resp.data,
+        "query": req.command,
+        "requires_confirmation": resp.requires_confirmation
+    }
 
 if __name__ == "__main__":
     import uvicorn
