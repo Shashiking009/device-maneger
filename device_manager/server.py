@@ -283,18 +283,25 @@ def api_rag_clear():
 def api_rag_status():
     return rag_service.status()
 
+from voice.voice_manager import voice_manager
+from voice.voice_state import voice_state_machine
+from voice.text_to_speech import tts_engine
+
+@app.get("/api/voice/status")
+def api_voice_status():
+    return {
+        "state": voice_state_machine.current_state.value,
+        "is_speaking": tts_engine.is_speaking
+    }
+
+@app.post("/api/voice/stop")
+def api_voice_stop():
+    tts_engine.stop()
+    return {"status": "success", "message": "Voice playback stopped"}
+
 @app.post("/api/voice/command")
 def api_voice_command(req: VoiceCommandRequest):
-    resp = orchestrator.process_command(req.command)
-    return {
-        "status": "success" if resp.success else ("ai_query" if resp.intent.value in ["AI_QUESTION", "RAG_QUERY"] else "error"),
-        "action": resp.intent.value,
-        "intent": resp.intent.value,
-        "message": resp.message,
-        "data": resp.data,
-        "query": req.command,
-        "requires_confirmation": resp.requires_confirmation
-    }
+    return voice_manager.process_voice_text(req.command)
 
 if __name__ == "__main__":
     import uvicorn

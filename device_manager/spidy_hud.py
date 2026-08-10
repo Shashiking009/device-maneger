@@ -109,7 +109,12 @@ class SpidyCyberHUD:
 
         # Start animation & background listener
         self.animate_hud()
-        threading.Thread(target=self.start_voice_listener_thread, daemon=True).start()
+        from voice.voice_state import voice_state_machine
+        from voice.voice_manager import voice_manager
+        
+        # Subscribe HUD to VoiceState transitions
+        voice_state_machine.subscribe(self.on_voice_event)
+        voice_manager.start()
 
     def start_drag(self, event):
         self._drag_x = event.x
@@ -140,81 +145,20 @@ class SpidyCyberHUD:
         )
         self.root.after(70, self.animate_hud)
 
-    def start_voice_listener_thread(self):
-        import speech_recognition as sr
-        recognizer = sr.Recognizer()
-        
-        recognizer.energy_threshold = 250
-        recognizer.dynamic_energy_threshold = False
-        recognizer.pause_threshold = 0.6
-        mic = sr.Microphone()
-
-        with mic as source:
-            recognizer.adjust_for_ambient_noise(source, duration=0.5)
-
-        show_windows_toast("Spidy Active", "Say 'Hey Spidy' followed by your command or question.")
-
-        while True:
-            try:
-                with mic as source:
-                    audio = recognizer.listen(source, timeout=None, phrase_time_limit=6)
-
-                try:
-                    text = recognizer.recognize_google(audio)
-                    print(f"[Spidy Captured]: '{text}'")
-                    lower_text = text.lower()
-
-                    wake_words = ["hey spidy", "hi spidy", "spidy", "spidey", "spider", "speedy", "ok spidy"]
-                    if any(w in lower_text for w in wake_words):
-                        self.update_hud("WAKE DETECTED", text, "#ff0055")
-
-                        try:
-                            res = requests.post(
-                                f"{SERVER_URL}/api/voice/command",
-                                json={"command": text},
-                                timeout=4
-                            )
-                            if res.status_code == 200:
-                                data = res.json()
-                                
-                                # Handle OS Actions (open, close, volume, type)
-                                if data.get("status") == "success" or data.get("action") in ["open_app", "close_app", "open_folder", "open_file"]:
-                                    msg = data.get("message", "Executed")
-                                    self.update_hud("EXECUTED", msg, "#10b981")
-                                    show_windows_toast("Spidy Task", msg)
-                                
-                                # Handle AI Queries (Qwen3 SLM questions)
-                                elif data.get("status") == "ai_query":
-                                    query = data.get("query", text)
-                                    self.update_hud("THINKING...", query, "#00f0ff")
-                                    
-                                    chat_res = requests.post(
-                                        f"{SERVER_URL}/api/chat",
-                                        json={
-                                            "session_id": "spidy-voice-session",
-                                            "message": query,
-                                            "use_rag": True,
-                                            "temperature": 0.7
-                                        },
-                                        timeout=40
-                                    )
-                                    if chat_res.status_code == 200:
-                                        reply = chat_res.json().get("content", "")
-                                        short_reply = reply[:200] + "..." if len(reply) > 200 else reply
-                                        self.update_hud("SPIDY ANSWER", short_reply[:35], "#10b981")
-                                        show_windows_toast("Spidy Answer", short_reply)
-                                        speak_text_async(short_reply)
-                                    else:
-                                        self.update_hud("ERROR", "AI Error", "#ff0055")
-                        except Exception as e:
-                            self.update_hud("ERROR", "Server Offline", "#ff0055")
-                except sr.UnknownValueError:
-                    pass
-                except sr.RequestError:
-                    pass
-
-            except Exception:
-                time.sleep(0.5)
+    def on_voice_event(self, event):
+        state_colors = {
+            "IDLE": "#00f0ff",
+            "LISTENING": "#ff0055",
+            "PROCESSING": "#eab308",
+            "EXECUTING": "#10b981",
+            "SPEAKING": "#a855f7",
+            "ERROR": "#ef4444",
+            "STOPPED": "#6b7280"
+        }
+        color = state_colors.get(event.state.value, "#00f0ff")
+        self.root.after(0, lambda: self.update_hud(event.state.value, event.message, color))
+        if event.state.value in ["EXECUTING", "SPEAKING"] and event.message:
+            show_windows_toast("Spidy Response", event.message)
 
 def run_spidy_hud():
     app = SpidyCyberHUD()
