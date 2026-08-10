@@ -83,7 +83,7 @@ def close_application_process(app_name: str) -> bool:
         try:
             pname = proc.info['name'].lower() if proc.info['name'] else ""
             for target in target_procs:
-                if target in pname or pname.startswith(app_name.lower()):
+                if target in pname or pname == f"{app_name.lower()}.exe" or pname.startswith(f"{app_name.lower()}."):
                     proc.kill()
                     closed_any = True
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):

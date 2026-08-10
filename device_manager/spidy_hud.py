@@ -9,19 +9,17 @@ import win32com.client
 
 import tkinter as tk
 
-# SAPI5 TTS Engine for spoken AI answers
-try:
-    speaker = win32com.client.Dispatch("SAPI.SpVoice")
-except Exception:
-    speaker = None
+import pythoncom
 
 def speak_text_async(text):
-    if speaker:
+    def _speak_thread():
         try:
-            # SAPI5 async flag: SVIFlagsAsync = 1
-            speaker.Speak(text, 1)
-        except Exception:
-            pass
+            pythoncom.CoInitialize()
+            spk = win32com.client.Dispatch("SAPI.SpVoice")
+            spk.Speak(text, 1)
+        except Exception as e:
+            print("SAPI5 TTS Warning:", e)
+    threading.Thread(target=_speak_thread, daemon=True).start()
 
 def show_windows_toast(title: str, message: str):
     ps_cmd = f'''
