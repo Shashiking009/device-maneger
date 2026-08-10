@@ -1,0 +1,6 @@
+{
+  "system_name": "Spidy AI",
+  "port": 8088,
+  "default_model": "qwen3:1.7b",
+  "vector_store": "FAISS IndexFlatIP"
+}

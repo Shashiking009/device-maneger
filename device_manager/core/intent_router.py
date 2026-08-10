@@ -33,9 +33,12 @@ class IntentRouter:
         if "lock laptop" in cmd or "lock computer" in cmd or "lock screen" in cmd or cmd == "lock":
             return Intent(name=IntentType.LOCK_SYSTEM, confidence=1.0, risk_level=RiskLevel.MEDIUM, parameters={"raw_cmd": "lock laptop"})
 
-        # 3. System Status
+        # 3. System Status & RAG Queries
         if "system" in cmd and ("status" in cmd or "stats" in cmd or "health" in cmd or "diagnostics" in cmd):
             return Intent(name=IntentType.SYSTEM_STATUS, confidence=1.0)
+
+        if any(p in cmd for p in ["knowledge base", "my project plan", "my documents", "my files", "in my document", "document says", "file says"]):
+            return Intent(name=IntentType.RAG_QUERY, confidence=1.0)
 
         # 4. Keyboard Controls
         if "select all" in cmd:

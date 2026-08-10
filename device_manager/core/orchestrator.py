@@ -5,7 +5,7 @@ from core.intent_router import IntentRouter
 from core.command_registry import CommandRegistry
 from core.permission_manager import PermissionManager
 from ai.qwen_engine import qwen_engine
-from rag_engine import rag_engine
+from rag.rag_engine import rag_service
 from database import add_message
 
 class SpidyOrchestrator:
@@ -51,20 +51,35 @@ class SpidyOrchestrator:
 
         # 4. Handle AI Questions & Local RAG Queries
         if intent.name in [IntentType.AI_QUESTION, IntentType.RAG_QUERY, IntentType.UNKNOWN]:
-            sources = []
-            rag_context = ""
-            if use_rag:
-                search_results = rag_engine.search(user_input, top_k=3)
-                if search_results:
-                    sources = search_results
-                    rag_context = "\n\n[RELEVANT LOCAL KNOWLEDGE BASE CONTEXT]:\n"
-                    for idx, item in enumerate(search_results, 1):
-                        rag_context += f"--- Source {idx} ({item['filename']}) ---\n{item['snippet']}\n"
-                    rag_context += "--- END CONTEXT ---\nPlease incorporate relevant details from above context if helpful.\n"
+            if use_rag or intent.name == IntentType.RAG_QUERY:
+                rag_res = rag_service.query(user_input)
+                # If RAG returned relevant information or explicit grounded refusal
+                if rag_res.sources or "couldn't find" in rag_res.answer:
+                    reply = rag_res.answer
+                    sources = [{"filename": s} for s in rag_res.sources]
+                    tps = rag_res.tps or 0.0
+                    latency_ms = round((time.time() - start_t) * 1000, 2)
+                    print(f"[ORCHESTRATOR LOG] input='{user_input}' | intent=RAG_QUERY | confidence={intent.confidence} | success=True | latency={latency_ms}ms | tps={tps}")
+                    
+                    if session_id:
+                        try:
+                            add_message(session_id, "user", user_input)
+                            add_message(session_id, "assistant", reply, sources=sources, tokens_per_sec=tps)
+                        except Exception as e:
+                            print("Database save error:", e)
 
+                    return SpidyResponse(
+                        success=True,
+                        intent=IntentType.RAG_QUERY,
+                        message=reply,
+                        sources=sources,
+                        tokens_per_sec=tps
+                    )
+
+            # Direct AI Question without local RAG context
             prompt = (
                 "You are Device Manager, a privacy-first, on-device AI assistant powered by Qwen3 Small Language Model (SLM). "
-                f"You run entirely locally on the user's hardware. Provide clear, concise, and helpful answers.\n{rag_context}\n"
+                "You run entirely locally on the user's hardware. Provide clear, concise, and helpful answers.\n"
                 f"User: {user_input}\nAssistant:"
             )
 
@@ -75,7 +90,7 @@ class SpidyOrchestrator:
             if session_id:
                 try:
                     add_message(session_id, "user", user_input)
-                    add_message(session_id, "assistant", reply, sources=sources, tokens_per_sec=tps)
+                    add_message(session_id, "assistant", reply, sources=[], tokens_per_sec=tps)
                 except Exception as e:
                     print("Database save error:", e)
 
@@ -83,7 +98,7 @@ class SpidyOrchestrator:
                 success=True,
                 intent=intent.name,
                 message=reply,
-                sources=sources,
+                sources=[],
                 tokens_per_sec=tps
             )
 

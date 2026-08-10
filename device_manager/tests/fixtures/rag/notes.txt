@@ -1,0 +1,4 @@
+Spidy AI Hardware Requirements:
+- CPU: Intel Core i5 or AMD Ryzen 5 equivalent.
+- RAM: 8 GB minimum (16 GB recommended).
+- Operating System: Windows 10/11 64-bit.

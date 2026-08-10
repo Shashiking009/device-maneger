@@ -1,0 +1,4 @@
+id,component,status
+1,FastAPI,Active
+2,Ollama Qwen3,Active
+3,FAISS Vector DB,Active

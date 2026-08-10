@@ -10,15 +10,12 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from database import (
-    init_db, create_session, get_sessions, delete_session,
-    add_message, get_session_messages, add_document, get_documents, delete_document
-)
-from system_monitor import get_system_metrics
-from rag_engine import rag_engine
+from database import init_db, create_session, get_sessions, get_session_messages, add_message, add_document, get_documents, delete_document, delete_session
 from voice_assistant import execute_voice_command
 from config import HOST, PORT, OLLAMA_HOST, OLLAMA_MODEL, UPLOAD_DIR
 from core.orchestrator import orchestrator
+from rag.rag_engine import rag_service
+from rag.models import RAGQueryResponse, RAGStatusResponse
 
 OLLAMA_URL = OLLAMA_HOST
 DEFAULT_MODEL = OLLAMA_MODEL
@@ -214,19 +211,13 @@ async def api_upload_document(file: UploadFile = File(...)):
     with open(filepath, "wb") as f:
         f.write(content)
 
-    text_content = ""
-    try:
-        text_content = content.decode("utf-8", errors="ignore")
-    except Exception:
-        text_content = str(content)
-
-    chunks = rag_engine.chunk_document(filename, filepath, text_content)
+    idx_res = rag_service.index(filepath)
     doc_id = add_document(
         filename=filename,
         filepath=filepath,
         file_type=file.content_type or "text/plain",
         file_size=file_size,
-        chunks_count=len(chunks)
+        chunks_count=idx_res.get("chunks_count", 0)
     )
 
     return {
@@ -234,7 +225,8 @@ async def api_upload_document(file: UploadFile = File(...)):
         "id": doc_id,
         "filename": filename,
         "file_size": file_size,
-        "chunks": len(chunks)
+        "chunks": idx_res.get("chunks_count", 0),
+        "indexing": idx_res
     }
 
 @app.get("/api/documents")
@@ -246,7 +238,7 @@ def api_delete_document(doc_id: int):
     docs = get_documents()
     target = next((d for d in docs if d["id"] == doc_id), None)
     if target:
-        rag_engine.remove_document_chunks(target["filename"])
+        rag_service.remove(target["filepath"])
         if os.path.exists(target["filepath"]):
             try:
                 os.remove(target["filepath"])
@@ -255,6 +247,41 @@ def api_delete_document(doc_id: int):
         delete_document(doc_id)
         return {"status": "success", "message": f"Document {doc_id} deleted"}
     raise HTTPException(status_code=404, detail="Document not found")
+
+# --- STANDARDIZED RAG API ENDPOINTS ---
+
+class RAGIndexRequest(BaseModel):
+    path: str
+
+class RAGQueryApiRequest(BaseModel):
+    query: str
+    top_k: int = 5
+
+@app.post("/api/rag/index")
+def api_rag_index(req: RAGIndexRequest):
+    return rag_service.index(req.path)
+
+@app.post("/api/rag/reindex")
+def api_rag_reindex(req: RAGIndexRequest):
+    return rag_service.reindex(req.path)
+
+@app.post("/api/rag/query", response_model=RAGQueryResponse)
+def api_rag_query(req: RAGQueryApiRequest):
+    return rag_service.query(req.query, top_k=req.top_k)
+
+@app.delete("/api/rag/document")
+def api_rag_delete_doc(req: RAGIndexRequest):
+    success = rag_service.remove(req.path)
+    return {"status": "success" if success else "error", "path": req.path}
+
+@app.post("/api/rag/clear")
+def api_rag_clear():
+    rag_service.clear()
+    return {"status": "success", "message": "Local RAG index cleared"}
+
+@app.get("/api/rag/status", response_model=RAGStatusResponse)
+def api_rag_status():
+    return rag_service.status()
 
 @app.post("/api/voice/command")
 def api_voice_command(req: VoiceCommandRequest):
