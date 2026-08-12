@@ -5,7 +5,7 @@ WAKE_WORD = "Hey Spidy"
 WAKE_WORD_ALIASES = [
     "hey spidy", "hi spidy", "spidy", "spidey", "spider", "speedy", "ok spidy",
     "hey spidey", "hey spider", "hey speedy", "hey sweetie", "hey spotify", "hey petey",
-    "a spidy", "a spidey", "hi spidey", "ok spidey"
+    "a spidy", "a spidey", "hi spidey", "ok spidey", "hey spicy", "hey spotty", "a spider"
 ]
 WAKE_WORD_SENSITIVITY = 0.7
 WAKE_WORD_COOLDOWN = 1.0  # seconds between wake activations
@@ -13,7 +13,7 @@ WAKE_WORD_COOLDOWN = 1.0  # seconds between wake activations
 # Speech Recognition & Listening Parameters
 LISTEN_TIMEOUT = 6.0       # seconds to wait for speech start
 MAX_LISTEN_SECONDS = 10.0  # max phrase duration
-AUDIO_ENERGY_THRESHOLD = 120  # High sensitivity for laptop microphones
+AUDIO_ENERGY_THRESHOLD = 250  # Tuned above room noise (70-88 RMS) for clean capture
 PAUSE_THRESHOLD = 0.5
 
 # Text-To-Speech Parameters

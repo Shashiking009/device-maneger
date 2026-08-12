@@ -1,17 +1,53 @@
 import re
-from typing import Tuple, Dict, Any, Optional
+from typing import Tuple, Dict, Any, Optional, List
 from core.intent_models import Intent, IntentType, RiskLevel
 from capabilities.app_manager import app_manager
 from capabilities.file_manager import file_manager
 from ai.qwen_engine import qwen_engine
+from system.window_context import window_context
 
 class IntentRouter:
     """
-    JARVIS-Style Intent Classification Router:
-    1. Fast Deterministic Regex & Keyword Matching (0ms latency)
-    2. Dynamic Capability Matching (ApplicationManager, FileManager, WindowManager)
-    3. Qwen3 SLM Fallback Classifier for ambiguous natural language
+    JARVIS Natural Language Intent Classification Router:
+    1. Fast Deterministic Regex & Natural Phrasing Matching (0ms latency)
+    2. Dynamic Capability & Reference Resolution
+    3. Multi-Step Request Splitting ("Open Chrome and Notepad")
+    4. Qwen3 SLM Fallback Classifier for ambiguous natural language
     """
+    def extract_multi_step_commands(self, text: str) -> List[str]:
+        if not text:
+            return []
+        lower = text.lower().strip()
+
+        # Check multi-step splitters: ", then ", " and then ", " and ", " then "
+        if any(sep in lower for sep in [", then ", " and then ", " then ", " and "]):
+            # Split only if multiple command actions exist or multiple app nouns
+            parts = re.split(r'\s*(?:,\s*then\s+|,\s*and\s+then\s+|\s+and\s+then\s+|\s+then\s+|\s+and\s+)\s*', text, flags=re.IGNORECASE)
+            
+            cleaned_parts = []
+            current_action_verb = ""
+
+            for part in parts:
+                p_clean = part.strip()
+                if not p_clean:
+                    continue
+
+                # Inherit action verb if second phrase is just an app/folder noun (e.g. "open Chrome and Notepad")
+                verb_match = re.match(r'^(open|launch|start|run|close|quit|show)\s+(.+)', p_clean, re.IGNORECASE)
+                if verb_match:
+                    current_action_verb = verb_match.group(1).lower()
+                    cleaned_parts.append(p_clean)
+                else:
+                    if current_action_verb:
+                        cleaned_parts.append(f"{current_action_verb} {p_clean}")
+                    else:
+                        cleaned_parts.append(p_clean)
+
+            if len(cleaned_parts) > 1:
+                return cleaned_parts
+
+        return [text]
+
     def classify_deterministic(self, clean_input: str) -> Optional[Intent]:
         cmd = clean_input.lower().strip()
         if not cmd:
@@ -25,17 +61,22 @@ class IntentRouter:
         if cmd in ["stop", "quiet", "stop talking", "hush", "shut up"]:
             return Intent(name=IntentType.STOP_SPEAKING, confidence=1.0)
 
-        # 2. Volume & Audio Controls
-        if any(v in cmd for v in ["volume up", "increase volume", "raise volume", "turn up volume", "louder"]):
+        # 2. Volume & Natural Audio Controls
+        if any(v in cmd for v in ["volume up", "increase volume", "increase the volume", "increase sound", "raise volume", "turn up volume", "turn the volume up", "make it louder", "volume higher"]):
             return Intent(name=IntentType.VOLUME_UP, confidence=1.0)
-        if any(v in cmd for v in ["volume down", "decrease volume", "lower volume", "turn down volume", "quiet"]):
+        if any(v in cmd for v in ["volume down", "decrease volume", "decrease the volume", "decrease sound", "lower volume", "turn down volume", "turn the volume down", "make it quieter", "volume lower"]):
             return Intent(name=IntentType.VOLUME_DOWN, confidence=1.0)
         if "unmute" in cmd:
             return Intent(name=IntentType.UNMUTE, confidence=1.0)
         if "mute" in cmd:
             return Intent(name=IntentType.MUTE, confidence=1.0)
 
-        # 3. Lock & Window Controls
+        # 3. Active Window Query ("What application am I using?")
+        if any(q in cmd for q in ["what app am i using", "what application am i using", "what app is open", "which app am i on"]):
+            info = window_context.get_active_window_info()
+            return Intent(name=IntentType.PROCESS_STATUS, target=info.get("app_alias", "Active Window"), confidence=1.0)
+
+        # 4. Lock & Window Controls
         if any(l in cmd for l in ["lock laptop", "lock computer", "lock screen", "lock my laptop"]) or cmd == "lock":
             return Intent(name=IntentType.LOCK_SYSTEM, confidence=1.0, risk_level=RiskLevel.MEDIUM)
         if any(w in cmd for w in ["show desktop", "minimize all", "hide all windows"]):
@@ -49,7 +90,7 @@ class IntentRouter:
         if "close window" in cmd or "close this window" in cmd:
             return Intent(name=IntentType.WINDOW_CLOSE, confidence=1.0)
 
-        # 4. System Telemetry & Process Inspection
+        # 5. System Telemetry & Process Inspection
         if any(s in cmd for s in ["system status", "how is my laptop", "cpu usage", "ram usage", "battery status"]):
             return Intent(name=IntentType.SYSTEM_STATUS, confidence=1.0)
         
@@ -60,7 +101,7 @@ class IntentRouter:
         if any(p in cmd for p in ["processes", "process status", "how many processes", "running applications"]):
             return Intent(name=IntentType.PROCESS_STATUS, confidence=1.0)
 
-        # 5. Local Memory Commands
+        # 6. Local Memory Commands
         if any(m in cmd for m in ["forget everything", "clear all memory", "delete all memories"]):
             return Intent(name=IntentType.MEMORY_CLEAR, confidence=1.0, requires_confirmation=True, risk_level=RiskLevel.HIGH)
         if "forget" in cmd or "delete memory" in cmd:
@@ -70,11 +111,11 @@ class IntentRouter:
         if "remember" in cmd or "my favorite" in cmd or "i use" in cmd or "switched to" in cmd:
             return Intent(name=IntentType.MEMORY_SAVE, confidence=1.0)
 
-        # 6. RAG Grounded Queries
+        # 7. RAG Grounded Queries
         if any(p in cmd for p in ["knowledge base", "my project plan", "my documents", "my files", "in my document", "document says"]):
             return Intent(name=IntentType.RAG_QUERY, confidence=1.0)
 
-        # 7. Text Typing & Automation Controls
+        # 8. Text Typing & Focused Window Controls
         if "select all" in cmd:
             return Intent(name=IntentType.KEY_PRESS, target="ctrl+a", confidence=1.0)
         if "copy" in cmd and "file" not in cmd and "folder" not in cmd:
@@ -82,7 +123,7 @@ class IntentRouter:
         if "paste" in cmd:
             return Intent(name=IntentType.PASTE, confidence=1.0)
         
-        type_match = re.search(r'^(?:type|write|say)\s+(.+)', cmd)
+        type_match = re.search(r'^(?:type|write|say|input)\s+(.+)', cmd)
         if type_match:
             return Intent(name=IntentType.TYPE_TEXT, target=type_match.group(1).strip(), confidence=1.0)
 
@@ -91,7 +132,7 @@ class IntentRouter:
         if "press space" in cmd or "hit space" in cmd:
             return Intent(name=IntentType.KEY_PRESS, target="space", confidence=1.0)
 
-        # 8. File Search & Document Summarization
+        # 9. File Search & Document Summarization
         create_fold_match = re.search(r'^(?:create|make|new)\s+folder\s+(.+)', cmd)
         if create_fold_match:
             return Intent(name=IntentType.CREATE_FOLDER, target=create_fold_match.group(1).strip(), confidence=1.0)
@@ -105,34 +146,33 @@ class IntentRouter:
             target_query = find_match.group(1).strip()
             return Intent(name=IntentType.SEARCH_FILE, target=target_query, confidence=1.0)
 
-        # 9. Window Focus / Switching
+        # 10. Window Focus / Switching
         switch_match = re.search(r'^(?:switch to|focus|bring up)\s+(.+)', cmd)
         if switch_match:
             return Intent(name=IntentType.FOCUS_APPLICATION, target=switch_match.group(1).strip(), confidence=1.0)
 
-        # 10. Application Closing
-        close_match = re.search(r'^(?:close|quit|exit|stop|kill|terminate)\s+(.+)', cmd)
+        # 11. Application Closing (Natural variations: "close Chrome", "shut down Chrome", "exit Chrome")
+        close_match = re.search(r'^(?:close|quit|exit|stop|kill|terminate|shut down|turn off)\s+(?:the\s+)?(.+)', cmd)
         if close_match and "window" not in cmd and "memory" not in cmd:
             return Intent(name=IntentType.CLOSE_APPLICATION, target=close_match.group(1).strip(), confidence=1.0)
 
-        # 11. Folder Opening
+        # 12. Folder Opening
         folder_match = re.search(r'^(?:open|show)\s+(?:my\s+)?([a-z0-9\s]+?)\s*(?:folder|directory)?$', cmd)
         if folder_match:
             potential_folder = folder_match.group(1).strip()
             if file_manager.resolve_folder_path(potential_folder):
                 return Intent(name=IntentType.OPEN_FOLDER, target=potential_folder, confidence=1.0)
 
-        # 12. Dynamic Application Opening
-        open_app_match = re.search(r'^(?:open|launch|start|run)\s+(.+)', cmd)
+        # 13. Natural Application Opening ("open Chrome", "launch Chrome", "start Google Chrome for me", "can you open Chrome?")
+        open_app_match = re.search(r'^(?:can you\s+)?(?:open|launch|start|run|bring up)\s+(?:the\s+)?(.+?)(?:\s+for me)?$', cmd)
         if open_app_match:
             target_app_query = open_app_match.group(1).strip()
-            # Check if target matches an app in app_manager
             found_app = app_manager.find_application(target_app_query)
             if found_app:
                 return Intent(name=IntentType.OPEN_APPLICATION, target=found_app.name, confidence=1.0)
 
-        # 13. General AI Questions ("what is...", "explain...", "how to...")
-        if any(cmd.startswith(prefix) for prefix in ["what is", "what are", "who is", "explain", "how to", "tell me about"]):
+        # 14. General AI Questions ("what is...", "explain...", "how to...")
+        if any(cmd.startswith(prefix) for prefix in ["what is", "what are", "who is", "who created", "explain", "how to", "tell me about", "is it"]):
             return Intent(name=IntentType.GENERAL_AI_QUERY, target=clean_input, confidence=0.9)
 
         return None
@@ -141,6 +181,9 @@ class IntentRouter:
         clean_input = re.sub(r'^(hey|hi|hello|ok|okay)?\s*(spidy|spidey|spider)\s*', '', user_input.lower().strip()).strip()
         if not clean_input:
             clean_input = user_input.lower().strip()
+
+        # Strip trailing punctuation for regex matching
+        clean_input = clean_input.rstrip("?!. ")
 
         # Step 1: Fast Deterministic Match
         det_intent = self.classify_deterministic(clean_input)
@@ -171,3 +214,5 @@ class IntentRouter:
                 pass
 
         return Intent(name=IntentType.GENERAL_AI_QUERY, target=user_input, confidence=0.7)
+
+intent_router = IntentRouter()

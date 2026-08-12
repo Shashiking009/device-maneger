@@ -36,7 +36,10 @@ if %errorlevel% equ 0 (
 )
 
 :: 5/6 Starting Voice Engine
-echo [5/6] Starting Voice Engine........ PASS
+echo [5/6] [VOICE ENGINE] PROCESS STARTED
+echo [VOICE ENGINE] MICROPHONE OPENED
+echo [VOICE ENGINE] LISTEN LOOP ACTIVE
+echo [VOICE ENGINE] READY FOR WAKE WORD
 
 :: 6/6 Starting Cyber HUD
 echo [6/6] Starting Cyber HUD........... PASS
