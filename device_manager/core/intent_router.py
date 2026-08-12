@@ -33,7 +33,7 @@ class IntentRouter:
                     continue
 
                 # Inherit action verb if second phrase is just an app/folder noun (e.g. "open Chrome and Notepad")
-                verb_match = re.match(r'^(open|launch|start|run|close|quit|show)\s+(.+)', p_clean, re.IGNORECASE)
+                verb_match = re.match(r'^(open|launch|start|run|close|quit|show|take me to)\s+(.+)', p_clean, re.IGNORECASE)
                 if verb_match:
                     current_action_verb = verb_match.group(1).lower()
                     cleaned_parts.append(p_clean)
@@ -72,7 +72,7 @@ class IntentRouter:
             return Intent(name=IntentType.MUTE, confidence=1.0)
 
         # 3. Active Window Query ("What application am I using?")
-        if any(q in cmd for q in ["what app am i using", "what application am i using", "what app is open", "which app am i on"]):
+        if any(q in cmd for q in ["what app am i using", "what application am i using", "what app is open", "which app am i using", "which app is open", "what window is active", "what am i currently using"]):
             info = window_context.get_active_window_info()
             return Intent(name=IntentType.PROCESS_STATUS, target=info.get("app_alias", "Active Window"), confidence=1.0)
 
@@ -90,8 +90,8 @@ class IntentRouter:
         if "close window" in cmd or "close this window" in cmd:
             return Intent(name=IntentType.WINDOW_CLOSE, confidence=1.0)
 
-        # 5. System Telemetry & Process Inspection
-        if any(s in cmd for s in ["system status", "how is my laptop", "cpu usage", "ram usage", "battery status"]):
+        # 5. System Telemetry & Laptop Status
+        if any(s in cmd for s in ["system status", "laptop status", "computer status", "how is my laptop", "how is my computer", "cpu usage", "ram usage", "battery status", "battery level", "how much battery", "how much ram"]):
             return Intent(name=IntentType.SYSTEM_STATUS, confidence=1.0)
         
         is_running_match = re.search(r'^(?:is|check if)\s+(.+?)\s+(?:running|open|active)\??$', cmd)
@@ -156,11 +156,12 @@ class IntentRouter:
         if close_match and "window" not in cmd and "memory" not in cmd:
             return Intent(name=IntentType.CLOSE_APPLICATION, target=close_match.group(1).strip(), confidence=1.0)
 
-        # 12. Folder Opening
-        folder_match = re.search(r'^(?:open|show)\s+(?:my\s+)?([a-z0-9\s]+?)\s*(?:folder|directory)?$', cmd)
+        # 12. Folder Opening ("open Downloads", "open my Downloads", "take me to Downloads", "show Downloads")
+        folder_match = re.search(r'^(?:open|show|take me to)\s+(?:my\s+)?(?:the\s+)?([a-z0-9\s]+?)\s*(?:folder|directory)?$', cmd)
         if folder_match:
             potential_folder = folder_match.group(1).strip()
-            if file_manager.resolve_folder_path(potential_folder):
+            res_p = file_manager.resolve_folder_path(potential_folder)
+            if res_p:
                 return Intent(name=IntentType.OPEN_FOLDER, target=potential_folder, confidence=1.0)
 
         # 13. Natural Application Opening ("open Chrome", "launch Chrome", "start Google Chrome for me", "can you open Chrome?")
@@ -171,7 +172,7 @@ class IntentRouter:
             if found_app:
                 return Intent(name=IntentType.OPEN_APPLICATION, target=found_app.name, confidence=1.0)
 
-        # 14. General AI Questions ("what is...", "explain...", "how to...")
+        # 14. General AI Questions ("what is...", "explain...", "how to...", "who created...")
         if any(cmd.startswith(prefix) for prefix in ["what is", "what are", "who is", "who created", "explain", "how to", "tell me about", "is it"]):
             return Intent(name=IntentType.GENERAL_AI_QUERY, target=clean_input, confidence=0.9)
 

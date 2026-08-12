@@ -20,18 +20,19 @@ class WakeWordDetector:
                 return lower.replace(alias, "hey spidy").strip()
         return lower
 
-    def is_wake_phrase(self, text: str) -> bool:
+    def is_wake_phrase(self, text: str, ignore_cooldown: bool = False) -> bool:
         if not text:
             return False
 
         now = time.time()
-        if (now - self.last_detection_time) < self.cooldown:
+        if not ignore_cooldown and (now - self.last_detection_time) < self.cooldown:
             return False
 
         lower_text = text.lower().strip()
         for alias in WAKE_WORD_ALIASES:
             if alias in lower_text:
-                self.last_detection_time = now
+                if not ignore_cooldown:
+                    self.last_detection_time = now
                 return True
         return False
 

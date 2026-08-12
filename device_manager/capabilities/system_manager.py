@@ -38,7 +38,14 @@ class SystemManager:
 
     def system_status(self) -> Tuple[bool, str]:
         t = get_system_telemetry()
-        msg = f"CPU usage is {round(t.cpu_percent)} percent, RAM usage is {round(t.memory_percent)} percent across {t.processes} active processes."
+        cpu = round(t.cpu_percent)
+        mem = round(t.memory_percent)
+        msg = f"Your laptop is running normally, boss. CPU is {cpu} percent, memory is {mem} percent"
+        if t.battery_percent is not None:
+            msg += f", and battery is at {round(t.battery_percent)} percent"
+            if t.battery_charging:
+                msg += " (charging)"
+        msg += "."
         return True, msg
 
     def process_status(self) -> Tuple[bool, str]:
