@@ -31,7 +31,7 @@ class SpeechToText:
         try:
             mic = sr.Microphone()
             with mic as source:
-                self.recognizer.adjust_for_ambient_noise(source, duration=0.3)
+                self.recognizer.energy_threshold = 120
                 audio = self.recognizer.listen(
                     source,
                     timeout=timeout,

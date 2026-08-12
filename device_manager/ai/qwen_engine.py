@@ -48,7 +48,7 @@ JSON Output:
                     "stream": False,
                     "options": {"temperature": 0.1}
                 },
-                timeout=10
+                timeout=1.5
             )
             if res.status_code == 200:
                 raw_text = res.json().get("response", "").strip()

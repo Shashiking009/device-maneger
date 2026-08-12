@@ -1,61 +1,44 @@
 import os
-import platform
-import subprocess
 from typing import Dict, Any, Callable, Tuple
 from core.intent_models import Intent, IntentType, SpidyResponse
-from voice_assistant import close_application_process, KNOWN_APPS, KNOWN_FOLDERS, UPLOAD_DIR, WORKSPACE_DIR
-from voice_automation import execute_automation_command
-
-APP_ALIASES: Dict[str, str] = {
-    "calc": "calculator",
-    "calculator": "calculator",
-    "win32calc": "calculator",
-    "notepad": "notepad",
-    "note pad": "notepad",
-    "chrome": "chrome",
-    "google chrome": "chrome",
-    "edge": "edge",
-    "msedge": "edge",
-    "microsoft edge": "edge",
-    "code": "vs code",
-    "vs code": "vs code",
-    "visual studio code": "vs code",
-    "cmd": "cmd",
-    "command prompt": "cmd",
-    "paint": "paint",
-    "ms paint": "paint",
-    "mspaint": "paint",
-    "task manager": "task manager",
-    "taskmgr": "task manager",
-    "explorer": "explorer",
-    "file explorer": "explorer"
-}
-
-def normalize_app_name(raw_name: str) -> str:
-    cleaned = raw_name.lower().strip()
-    return APP_ALIASES.get(cleaned, cleaned)
+from capabilities.capability_registry import capability_registry
+from ai.qwen_engine import qwen_engine
 
 class CommandRegistry:
     """
-    Central registry of safe, pre-approved system action handlers.
-    NEVER allows execution of raw unvalidated shell strings or code strings.
+    JARVIS Windows Capability Orchestration Engine.
+    Executes intents through safe Windows Capability abstraction layers (AppManager, FileManager, WindowManager, SystemManager, KeyboardController).
     """
     def __init__(self):
+        self.cap = capability_registry
         self.handlers: Dict[IntentType, Callable[[Intent], SpidyResponse]] = {
             IntentType.OPEN_APPLICATION: self._handle_open_app,
             IntentType.CLOSE_APPLICATION: self._handle_close_app,
-            IntentType.TYPE_TEXT: self._handle_automation_action,
-            IntentType.KEY_PRESS: self._handle_automation_action,
-            IntentType.COPY: self._handle_automation_action,
-            IntentType.PASTE: self._handle_automation_action,
-            IntentType.VOLUME_UP: self._handle_automation_action,
-            IntentType.VOLUME_DOWN: self._handle_automation_action,
-            IntentType.MUTE: self._handle_automation_action,
-            IntentType.UNMUTE: self._handle_automation_action,
-            IntentType.LOCK_SYSTEM: self._handle_automation_action,
+            IntentType.FOCUS_APPLICATION: self._handle_focus_app,
             IntentType.OPEN_FOLDER: self._handle_open_folder,
             IntentType.OPEN_FILE: self._handle_open_file,
+            IntentType.SEARCH_FILE: self._handle_search_file,
+            IntentType.READ_FILE: self._handle_read_file,
+            IntentType.CREATE_FOLDER: self._handle_create_folder,
+            IntentType.TYPE_TEXT: self._handle_type_text,
+            IntentType.KEY_PRESS: self._handle_key_press,
+            IntentType.COPY: self._handle_key_press,
+            IntentType.PASTE: self._handle_key_press,
+            IntentType.VOLUME_UP: self._handle_volume_up,
+            IntentType.VOLUME_DOWN: self._handle_volume_down,
+            IntentType.MUTE: self._handle_mute,
+            IntentType.UNMUTE: self._handle_unmute,
+            IntentType.LOCK_SYSTEM: self._handle_lock_system,
+            IntentType.WINDOW_MINIMIZE: self._handle_window_control,
+            IntentType.WINDOW_MAXIMIZE: self._handle_window_control,
+            IntentType.WINDOW_RESTORE: self._handle_window_control,
+            IntentType.WINDOW_CLOSE: self._handle_window_control,
+            IntentType.SHOW_DESKTOP: self._handle_window_control,
             IntentType.SYSTEM_STATUS: self._handle_system_status,
+            IntentType.PROCESS_STATUS: self._handle_process_status,
+            IntentType.GENERAL_AI_QUERY: self._handle_ai_query,
+            IntentType.AI_QUESTION: self._handle_ai_query,
+            IntentType.HELP: self._handle_help,
         }
 
     def execute(self, intent: Intent) -> SpidyResponse:
@@ -64,208 +47,128 @@ class CommandRegistry:
             return SpidyResponse(
                 success=False,
                 intent=intent.name,
-                message=f"No execution handler registered for intent '{intent.name.value}'."
+                message=f"I don't know how to execute capability '{intent.name.value}' yet."
             )
         return handler(intent)
 
     def _handle_open_app(self, intent: Intent) -> SpidyResponse:
-        raw_target = intent.target or intent.parameters.get("app", "")
-        if not raw_target:
-            return SpidyResponse(success=False, intent=intent.name, message="Missing target application name.")
-        
-        normalized_app = normalize_app_name(raw_target)
-        app_data = KNOWN_APPS.get(normalized_app)
-        
-        if not app_data:
-            # Fallback to attempt launching standard windows process name
-            app_data = {"exec": [f"{normalized_app}.exe"]}
-            
-        try:
-            if platform.system() == "Windows":
-                subprocess.Popen(app_data["exec"], shell=True)
-            else:
-                subprocess.Popen([app_data["exec"][0]])
-            return SpidyResponse(
-                success=True,
-                intent=intent.name,
-                message=f"Opening {normalized_app.title()} on your device.",
-                data={"app": normalized_app}
-            )
-        except Exception as e:
-            return SpidyResponse(
-                success=False,
-                intent=intent.name,
-                message=f"Could not launch {normalized_app}: {str(e)}"
-            )
+        target = intent.target or intent.parameters.get("app", "")
+        succ, msg = self.cap.apps.launch_application(target)
+        return SpidyResponse(success=succ, intent=intent.name, message=msg, data={"target": target})
 
     def _handle_close_app(self, intent: Intent) -> SpidyResponse:
-        raw_target = intent.target or intent.parameters.get("app", "")
-        if not raw_target:
-            return SpidyResponse(success=False, intent=intent.name, message="Missing target application name.")
-            
-        normalized_app = normalize_app_name(raw_target)
-        closed = close_application_process(normalized_app)
-        if closed:
-            return SpidyResponse(
-                success=True,
-                intent=intent.name,
-                message=f"Successfully closed {normalized_app.title()} on your device.",
-                data={"app": normalized_app}
-            )
-        else:
-            return SpidyResponse(
-                success=True,
-                intent=intent.name,
-                message=f"Tried to close {normalized_app.title()}, but no running process was found.",
-                data={"app": normalized_app}
-            )
+        target = intent.target or intent.parameters.get("app", "")
+        succ, msg = self.cap.apps.close_application(target)
+        return SpidyResponse(success=succ, intent=intent.name, message=msg, data={"target": target})
 
-    def _handle_automation_action(self, intent: Intent) -> SpidyResponse:
-        raw_cmd = intent.parameters.get("raw_cmd", "")
-        if not raw_cmd:
-            if intent.name == IntentType.VOLUME_UP:
-                raw_cmd = "volume up"
-            elif intent.name == IntentType.VOLUME_DOWN:
-                raw_cmd = "volume down"
-            elif intent.name == IntentType.MUTE:
-                raw_cmd = "mute"
-            elif intent.name == IntentType.UNMUTE:
-                raw_cmd = "unmute"
-            elif intent.name == IntentType.LOCK_SYSTEM:
-                raw_cmd = "lock laptop"
-            elif intent.name == IntentType.TYPE_TEXT:
-                raw_cmd = f"type {intent.target or ''}"
-            elif intent.name == IntentType.KEY_PRESS:
-                raw_cmd = f"press {intent.target or ''}"
-            elif intent.name == IntentType.COPY:
-                raw_cmd = "copy"
-            elif intent.name == IntentType.PASTE:
-                raw_cmd = "paste"
-
-        res = execute_automation_command(raw_cmd)
-        if res.get("status") == "success":
-            return SpidyResponse(
-                success=True,
-                intent=intent.name,
-                message=res.get("message", "Executed automation action.")
-            )
-        else:
-            return SpidyResponse(
-                success=False,
-                intent=intent.name,
-                message=res.get("message", "Failed to execute automation action.")
-            )
+    def _handle_focus_app(self, intent: Intent) -> SpidyResponse:
+        target = intent.target or ""
+        succ, msg = self.cap.windows.focus_window(target)
+        return SpidyResponse(success=succ, intent=intent.name, message=msg, data={"target": target})
 
     def _handle_open_folder(self, intent: Intent) -> SpidyResponse:
-        target = (intent.target or intent.parameters.get("folder", "")).lower()
-        folder_path = KNOWN_FOLDERS.get(target)
-        
-        if not folder_path or not os.path.exists(folder_path):
-            folder_path = os.path.expanduser(f"~/{target.title()}")
-
-        if os.path.exists(folder_path):
-            try:
-                if platform.system() == "Windows":
-                    os.startfile(folder_path)
-                else:
-                    subprocess.Popen(["xdg-open", folder_path])
-                return SpidyResponse(
-                    success=True,
-                    intent=intent.name,
-                    message=f"Opening {target.title()} folder.",
-                    data={"folder": target, "path": folder_path}
-                )
-            except Exception as e:
-                return SpidyResponse(success=False, intent=intent.name, message=f"Failed to open folder: {str(e)}")
-
-        return SpidyResponse(success=False, intent=intent.name, message=f"Folder '{target}' not found.")
+        target = intent.target or intent.parameters.get("folder", "downloads")
+        succ, msg = self.cap.files.open_folder(target)
+        return SpidyResponse(success=succ, intent=intent.name, message=msg, data={"folder": target})
 
     def _handle_open_file(self, intent: Intent) -> SpidyResponse:
-        target_name = (intent.target or intent.parameters.get("filename", "")).lower().strip()
-        if not target_name:
-            return SpidyResponse(success=False, intent=intent.name, message="Missing target filename.")
+        target = intent.target or ""
+        succ, msg = self.cap.files.open_file(target)
+        return SpidyResponse(success=succ, intent=intent.name, message=msg, data={"file": target})
 
-        search_dirs = [UPLOAD_DIR, WORKSPACE_DIR]
-        candidates = []
-        for search_dir in search_dirs:
-            if os.path.exists(search_dir):
-                for f in os.listdir(search_dir):
-                    if (target_name in f.lower() or f.lower().startswith(target_name)) and not os.path.isdir(os.path.join(search_dir, f)):
-                        candidates.append(os.path.join(search_dir, f))
+    def _handle_search_file(self, intent: Intent) -> SpidyResponse:
+        target = intent.target or ""
+        matches = self.cap.files.search_files(target, limit=5)
+        if not matches:
+            return SpidyResponse(success=False, intent=intent.name, message=f"No files found matching '{target}'.")
+        
+        names = [m["name"] for m in matches]
+        msg = f"I found {len(matches)} files: {', '.join(names)}."
+        return SpidyResponse(success=True, intent=intent.name, message=msg, data={"matches": matches})
 
-        if candidates:
-            target_path = candidates[0]
-            try:
-                if platform.system() == "Windows":
-                    os.startfile(target_path)
-                else:
-                    subprocess.Popen(["xdg-open", target_path])
-                filename = os.path.basename(target_path)
-                return SpidyResponse(
-                    success=True,
-                    intent=intent.name,
-                    message=f"Opening file {filename}.",
-                    data={"filename": filename, "filepath": target_path}
-                )
-            except Exception as e:
-                return SpidyResponse(success=False, intent=intent.name, message=f"Error opening file: {str(e)}")
+    def _handle_read_file(self, intent: Intent) -> SpidyResponse:
+        target = intent.target or ""
+        action = intent.parameters.get("action", "read")
+        if action == "summarize":
+            succ, msg = self.cap.files.summarize_document(target)
+        else:
+            succ, msg = self.cap.files.read_text_file(target)
+        return SpidyResponse(success=succ, intent=intent.name, message=msg)
 
-        return SpidyResponse(success=False, intent=intent.name, message=f"File '{target_name}' not found in uploads or workspace.")
+    def _handle_create_folder(self, intent: Intent) -> SpidyResponse:
+        target = intent.target or "New Folder"
+        succ, msg = self.cap.files.create_folder(target)
+        return SpidyResponse(success=succ, intent=intent.name, message=msg)
+
+    def _handle_type_text(self, intent: Intent) -> SpidyResponse:
+        text = intent.target or intent.parameters.get("text", "")
+        succ, msg = self.cap.keyboard.type_text(text)
+        return SpidyResponse(success=succ, intent=intent.name, message=msg)
+
+    def _handle_key_press(self, intent: Intent) -> SpidyResponse:
+        target = intent.target or "enter"
+        succ, msg = self.cap.keyboard.press_key(target)
+        return SpidyResponse(success=succ, intent=intent.name, message=msg)
+
+    def _handle_volume_up(self, intent: Intent) -> SpidyResponse:
+        succ, msg = self.cap.system.volume_up()
+        return SpidyResponse(success=succ, intent=intent.name, message=msg)
+
+    def _handle_volume_down(self, intent: Intent) -> SpidyResponse:
+        succ, msg = self.cap.system.volume_down()
+        return SpidyResponse(success=succ, intent=intent.name, message=msg)
+
+    def _handle_mute(self, intent: Intent) -> SpidyResponse:
+        succ, msg = self.cap.system.mute()
+        return SpidyResponse(success=succ, intent=intent.name, message=msg)
+
+    def _handle_unmute(self, intent: Intent) -> SpidyResponse:
+        succ, msg = self.cap.system.unmute()
+        return SpidyResponse(success=succ, intent=intent.name, message=msg)
+
+    def _handle_lock_system(self, intent: Intent) -> SpidyResponse:
+        succ, msg = self.cap.system.lock_laptop()
+        return SpidyResponse(success=succ, intent=intent.name, message=msg)
+
+    def _handle_window_control(self, intent: Intent) -> SpidyResponse:
+        if intent.name == IntentType.WINDOW_MINIMIZE:
+            succ, msg = self.cap.windows.minimize_active_window()
+        elif intent.name == IntentType.WINDOW_MAXIMIZE:
+            succ, msg = self.cap.windows.maximize_active_window()
+        elif intent.name == IntentType.WINDOW_RESTORE:
+            succ, msg = self.cap.windows.restore_active_window()
+        elif intent.name == IntentType.WINDOW_CLOSE:
+            succ, msg = self.cap.windows.close_active_window()
+        elif intent.name == IntentType.SHOW_DESKTOP:
+            succ, msg = self.cap.windows.show_desktop()
+        else:
+            succ, msg = False, "Unknown window action."
+        return SpidyResponse(success=succ, intent=intent.name, message=msg)
 
     def _handle_system_status(self, intent: Intent) -> SpidyResponse:
-        return SpidyResponse(
-            success=True,
-            intent=intent.name,
-            message="Checking system diagnostics. Check the system telemetry dashboard for real-time CPU and Memory stats."
-        )
+        if intent.target == "self_diagnostics":
+            succ, msg = self.cap.system.self_diagnostics()
+        else:
+            succ, msg = self.cap.system.system_status()
+        return SpidyResponse(success=succ, intent=intent.name, message=msg)
 
-    # --- ACTION EXECUTOR HELPER METHODS ---
+    def _handle_process_status(self, intent: Intent) -> SpidyResponse:
+        target = intent.target or intent.parameters.get("app", "")
+        if target:
+            succ, msg = self.cap.system.is_app_running(target)
+        else:
+            succ, msg = self.cap.system.process_status()
+        return SpidyResponse(success=succ, intent=intent.name, message=msg)
 
-    def execute_open_app(self, app_name: str) -> Tuple[bool, str]:
-        intent = Intent(name=IntentType.OPEN_APPLICATION, confidence=1.0, target=app_name)
-        resp = self._handle_open_app(intent)
-        return resp.success, resp.message
+    def _handle_ai_query(self, intent: Intent) -> SpidyResponse:
+        query = intent.target or intent.parameters.get("raw_cmd", "")
+        prompt = f"Answer the user's question concisely in 2 sentences:\nUser Question: {query}"
+        reply, tps = qwen_engine.generate_ai_response(prompt)
+        ans = reply.strip() if reply else "I couldn't process that question right now."
+        return SpidyResponse(success=True, intent=intent.name, message=ans)
 
-    def execute_close_app(self, app_name: str) -> Tuple[bool, str]:
-        intent = Intent(name=IntentType.CLOSE_APPLICATION, confidence=1.0, target=app_name)
-        resp = self._handle_close_app(intent)
-        return resp.success, resp.message
-
-    def execute_type_text(self, text: str) -> Tuple[bool, str]:
-        intent = Intent(name=IntentType.TYPE_TEXT, confidence=1.0, parameters={"text": text})
-        resp = self._handle_automation_action(intent)
-        return resp.success, resp.message
-
-    def execute_volume_change(self, action: str) -> Tuple[bool, str]:
-        type_map = {
-            "up": IntentType.VOLUME_UP,
-            "down": IntentType.VOLUME_DOWN,
-            "mute": IntentType.MUTE,
-            "unmute": IntentType.UNMUTE
-        }
-        intent_type = type_map.get(action.lower(), IntentType.VOLUME_UP)
-        intent = Intent(name=intent_type, confidence=1.0)
-        resp = self._handle_automation_action(intent)
-        return resp.success, resp.message
-
-    def execute_lock_screen(self) -> Tuple[bool, str]:
-        intent = Intent(name=IntentType.LOCK_SYSTEM, confidence=1.0)
-        resp = self._handle_automation_action(intent)
-        return resp.success, resp.message
-
-    def verify_app_running(self, app_name: str) -> bool:
-        import psutil
-        canonical = normalize_app_name(app_name)
-        app_info = KNOWN_APPS.get(canonical)
-        if not app_info:
-            return True
-        procs = [p.lower() for p in app_info.get("processes", [])]
-        for p in psutil.process_iter(['name']):
-            try:
-                if p.info['name'] and p.info['name'].lower() in procs:
-                    return True
-            except Exception:
-                pass
-        return False
+    def _handle_help(self, intent: Intent) -> SpidyResponse:
+        msg = "I can open applications, search files, control volume and windows, type text, answer questions, remember preferences, and monitor your system."
+        return SpidyResponse(success=True, intent=intent.name, message=msg)
 
 command_registry = CommandRegistry()

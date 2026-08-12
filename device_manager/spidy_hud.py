@@ -136,14 +136,12 @@ class SpidyCyberHUD:
         # Start HUD Animations & Background Threads
         self.animate_hud()
         
-        # Subscribe HUD to VoiceState Machine directly
+        # Subscribe HUD to VoiceState Machine directly if in process
         try:
             from voice.voice_state import voice_state_machine
-            from voice.voice_manager import voice_manager
             voice_state_machine.subscribe(self.on_voice_event)
-            voice_manager.start()
         except Exception as e:
-            print(f"[HUD WARNING]: Local voice subsystem init warning: {e}")
+            pass
 
         # Start Telemetry & WebSocket Reconnect Threads
         threading.Thread(target=self._telemetry_poll_loop, daemon=True).start()

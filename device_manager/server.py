@@ -37,6 +37,27 @@ app.add_middleware(
 # Initialize database on startup
 init_db()
 
+@app.on_event("startup")
+def startup_event():
+    from core.singleton_lock import singleton_lock
+    acquired, msg = singleton_lock.acquire()
+    print(f"[SERVER STARTUP]: {msg}")
+    if not acquired:
+        print("[SERVER STARTUP]: Backend already active or port blocked. Exiting startup.")
+        return
+
+    from voice.voice_manager import voice_manager
+    print("[SERVER STARTUP]: Starting Spidy Background Voice Assistant Engine...")
+    voice_manager.start()
+
+@app.on_event("shutdown")
+def shutdown_event():
+    from core.singleton_lock import singleton_lock
+    from voice.voice_manager import voice_manager
+    print("[SERVER SHUTDOWN]: Stopping Spidy Background Voice Assistant Engine...")
+    voice_manager.stop()
+    singleton_lock.release()
+
 # Mount static directory
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 os.makedirs(STATIC_DIR, exist_ok=True)
@@ -416,6 +437,13 @@ async def websocket_spidy(websocket: WebSocket):
         event_bus.unregister_ws(websocket)
 
 if __name__ == "__main__":
+    import sys
+    from core.singleton_lock import singleton_lock
+    pid, pname = singleton_lock.get_port_owner()
+    if pid and singleton_lock.is_backend_healthy():
+        print(f"Spidy AI is already running on http://{HOST}:{PORT} (PID: {pid}, Process: {pname}). Exiting duplicate launcher.")
+        sys.exit(0)
+
     import uvicorn
     print(f"Starting Device Manager FastAPI Server on http://{HOST}:{PORT}")
     uvicorn.run(app, host=HOST, port=PORT)

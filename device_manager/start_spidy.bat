@@ -26,9 +26,14 @@ echo [2/6] Checking Ollama.............. PASS
 echo [3/6] Checking Qwen3............... PASS
 
 :: 4/6 Check if FastAPI is already running or start it
-echo [4/6] Starting FastAPI............. PASS
-start /b "" python -m uvicorn server:app --host 127.0.0.1 --port 8088
-ping 127.0.0.1 -n 3 >nul
+python -c "import requests, sys; sys.exit(0 if requests.get('http://127.0.0.1:8088/health', timeout=1).status_code == 200 else 1)" >nul 2>&1
+if %errorlevel% equ 0 (
+    echo [4/6] Spidy AI backend already running..... REUSING EXISTING BACKEND
+) else (
+    echo [4/6] Starting FastAPI............. PASS
+    start /b "" python -m uvicorn server:app --host 127.0.0.1 --port 8088
+    ping 127.0.0.1 -n 3 >nul
+)
 
 :: 5/6 Starting Voice Engine
 echo [5/6] Starting Voice Engine........ PASS
